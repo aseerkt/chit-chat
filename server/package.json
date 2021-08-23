@@ -1,0 +1,28 @@
+{
+   "name": "server",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "devDependencies": {
+      "@types/node": "^16.7.1",
+      "concurrently": "^6.2.1",
+      "nodemon": "^2.0.12",
+      "ts-node": "10.2.1",
+      "typescript": "4.3.5"
+   },
+   "dependencies": {
+      "apollo-server-express": "^3.1.2",
+      "chalk": "^4.1.2",
+      "dotenv-safe": "^8.2.0",
+      "express": "^4.17.1",
+      "graphql": "^15.5.1",
+      "jsonwebtoken": "^8.5.1",
+      "pg": "^8.4.0",
+      "reflect-metadata": "^0.1.10",
+      "type-graphql": "^1.1.1",
+      "typeorm": "0.2.37"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts"
+   },
+   "license": "MIT"
+}
