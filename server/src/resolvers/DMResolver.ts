@@ -5,8 +5,12 @@ import {
   Int,
   Mutation,
   ObjectType,
+  Publisher,
+  PubSub,
   Query,
   Resolver,
+  Root,
+  Subscription,
   UseMiddleware,
 } from 'type-graphql';
 import { getConnection } from 'typeorm';
@@ -97,13 +101,27 @@ export class DMResolver {
   async sendDM(
     @Arg('roomId', () => Int) roomId: number,
     @Arg('text') text: string,
-    @Ctx() { res }: MyContext
+    @Ctx() { res }: MyContext,
+    @PubSub('NEW_MESSAGE') publish: Publisher<Message>
   ): Promise<SendMessageResponse> {
     const message = await Message.create({
       roomId: roomId,
       text,
       senderId: res.locals.userId,
     }).save();
+    await publish(message);
     return { message };
+  }
+
+  @Subscription({
+    topics: 'NEW_MESSAGE',
+    filter: ({ args, payload }) => args.roomId === payload.roomId,
+  })
+  getNewMessage(
+    @Root() msgPayload: Message,
+    @Arg('roomId', () => Int) roomId: number
+  ): Message {
+    console.log(roomId);
+    return msgPayload;
   }
 }
