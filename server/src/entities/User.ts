@@ -1,4 +1,4 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -11,7 +11,7 @@ import bcrypt from 'bcryptjs';
 @ObjectType()
 @Entity('users')
 export class User extends BaseEntity {
-  @Field()
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,7 +20,7 @@ export class User extends BaseEntity {
   fullName: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @Field()
