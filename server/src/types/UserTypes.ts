@@ -25,3 +25,11 @@ export class RegisterInput extends LoginInput {
   @Field()
   fullName: string;
 }
+
+@ObjectType()
+export class PaginatedUsers {
+  @Field(() => [User])
+  users: User[];
+  @Field()
+  hasMore: boolean;
+}

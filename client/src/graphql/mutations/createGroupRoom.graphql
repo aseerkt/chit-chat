@@ -1,0 +1,11 @@
+mutation CreateGroupRoom($name: String!, $members: [Int!]!) {
+  createGroupRoom(name: $name, members: $members) {
+    room {
+      ...RoomFields
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

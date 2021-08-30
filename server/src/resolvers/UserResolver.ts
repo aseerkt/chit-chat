@@ -1,24 +1,58 @@
 import {
   Arg,
   Ctx,
+  Int,
   Mutation,
   Query,
   Resolver,
   UseMiddleware,
 } from 'type-graphql';
+import { getRepository, Not } from 'typeorm';
 import { User } from '../entities/User';
 import { protect } from '../middlewares/permissions';
 import { MyContext } from '../types/globalTypes';
-import { LoginInput, RegisterInput, UserResponse } from '../types/UserTypes';
+import {
+  LoginInput,
+  PaginatedUsers,
+  RegisterInput,
+  UserResponse,
+} from '../types/UserTypes';
 import { setToken } from '../utils/jwtHelper';
 import validateEntity from '../utils/validationHelpers';
 
 @Resolver(User)
 export class UserResolver {
-  @Query(() => [User])
+  @Query(() => PaginatedUsers)
   @UseMiddleware(protect({ strict: true }))
-  allUsers() {
-    return User.find();
+  async allUsers(
+    @Arg('limit', () => Int, { nullable: true, defaultValue: 5 })
+    limit: number,
+    @Arg('offset', () => Int, { nullable: true }) offset: number,
+    @Ctx() { res }: MyContext
+  ): Promise<PaginatedUsers> {
+    const users = await User.find({
+      where: { id: Not(res.locals.userId) },
+      take: limit + 1,
+      skip: offset || 0,
+    });
+    return {
+      users: users.slice(0, limit),
+      hasMore: users.length === limit + 1,
+    };
+  }
+
+  @Query(() => [User], { nullable: true })
+  @UseMiddleware(protect({ strict: true }))
+  searchUser(
+    @Ctx() { res }: MyContext,
+    @Arg('term') term: string
+  ): Promise<User[]> | null {
+    if (!term) return null;
+    return getRepository(User)
+      .createQueryBuilder('u')
+      .where('u.id != :uid', { uid: res.locals.userId })
+      .andWhere("u.username LIKE '%' || :term || '%'", { term })
+      .getMany();
   }
 
   @Query(() => User, { nullable: false })

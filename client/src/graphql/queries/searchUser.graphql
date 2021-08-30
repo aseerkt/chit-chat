@@ -1,0 +1,5 @@
+query SearchUser($term: String!) {
+  searchUser(term: $term) {
+    ...UserField
+  }
+}

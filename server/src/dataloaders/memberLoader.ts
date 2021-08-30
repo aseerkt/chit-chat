@@ -18,9 +18,6 @@ async function batchMembers(roomIds: readonly number[]) {
   `,
     [roomIds]
   );
-  console.log(roomIds);
-
-  console.log(members);
 
   const membersToIds: Record<number, MemberWithRoomId[]> = {};
 

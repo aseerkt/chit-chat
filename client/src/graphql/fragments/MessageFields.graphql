@@ -1,0 +1,11 @@
+fragment MessageFields on Message {
+  id
+  text
+  senderId
+  sender {
+    ...UserField
+  }
+  roomId
+  createdAt
+  updatedAt
+}

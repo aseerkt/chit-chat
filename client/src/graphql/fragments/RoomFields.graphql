@@ -1,0 +1,10 @@
+fragment RoomFields on Room {
+  id
+  type
+  name
+  members {
+    ...UserField
+  }
+  createdAt
+  updatedAt
+}

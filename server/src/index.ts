@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import http from 'http';
 import path from 'path';
+import cors from 'cors';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { execute, subscribe } from 'graphql';
@@ -19,6 +20,8 @@ import createMemberLoader from './dataloaders/memberLoader';
 async function startServer() {
   await createConnection();
   const app = express();
+
+  app.use(cors({ origin: 'http://localhost:3000' }));
 
   const schema = await buildSchema({
     resolvers: [path.join(__dirname, './resolvers/*.{j,t}s')],

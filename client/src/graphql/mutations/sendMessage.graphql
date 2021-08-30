@@ -1,0 +1,11 @@
+mutation SendMessage($text: String!, $roomId: Int!) {
+  sendMessage(text: $text, roomId: $roomId) {
+    message {
+      ...MessageFields
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

@@ -1,0 +1,11 @@
+mutation CreateDMRoom($recieverId: Int!) {
+  createDMRoom(recieverId: $recieverId) {
+    room {
+      ...RoomFields
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

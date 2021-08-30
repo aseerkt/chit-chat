@@ -1,0 +1,11 @@
+query GetMyRooms {
+  getMyRooms {
+    id
+    name
+    type
+    createdAt
+    members {
+      ...UserField
+    }
+  }
+}
