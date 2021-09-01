@@ -16,6 +16,8 @@ import { __prod__ } from './constants';
 import { buildSchema } from 'type-graphql';
 import createUserLoader from './dataloaders/userLoader';
 import createMemberLoader from './dataloaders/memberLoader';
+import createMessageLoader from './dataloaders/messageLoader';
+import { MyContext } from './types/globalTypes';
 
 async function startServer() {
   await createConnection();
@@ -41,12 +43,14 @@ async function startServer() {
   );
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }) => ({
-      req,
-      res,
-      userLoader: createUserLoader(),
-      memberLoader: createMemberLoader(),
-    }),
+    context: ({ req, res }) =>
+      ({
+        req,
+        res,
+        userLoader: createUserLoader(),
+        memberLoader: createMemberLoader(),
+        msgLoader: createMessageLoader(),
+      } as MyContext),
     plugins: [
       {
         async serverWillStart() {

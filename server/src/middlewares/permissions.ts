@@ -29,12 +29,12 @@ export const protect: ProtectMiddleware =
   };
 
 export const hasRoomAccess: MiddlewareFn<MyContext> = async function (
-  { context, args },
+  { context, args, root },
   next
 ) {
   try {
     const room = await Room.findOne({
-      where: { id: args.roomId },
+      where: { id: args.roomId || root.roomId },
       relations: ['members'],
     });
     if (!room) {

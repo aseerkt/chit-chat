@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Field, ObjectType } from 'type-graphql';
 import createMembersLoader from '../dataloaders/memberLoader';
+import createMessageLoader from '../dataloaders/messageLoader';
 import createUserLoader from '../dataloaders/userLoader';
 
 @ObjectType()
@@ -29,4 +30,5 @@ export interface MyContext {
   res: Response & { locals: { userId?: number } };
   userLoader: ReturnType<typeof createUserLoader>;
   memberLoader: ReturnType<typeof createMembersLoader>;
+  msgLoader: ReturnType<typeof createMessageLoader>;
 }

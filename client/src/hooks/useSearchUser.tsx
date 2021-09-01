@@ -16,6 +16,7 @@ function useSearchUser() {
         clearSearch();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [debouncedSearchTerm] // Only call effect if debounced search term changes
   );
 

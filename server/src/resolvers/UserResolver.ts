@@ -1,6 +1,7 @@
 import {
   Arg,
   Ctx,
+  FieldResolver,
   Int,
   Mutation,
   Query,
@@ -8,6 +9,7 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { getRepository, Not } from 'typeorm';
+import { Notification } from '../entities/Notification';
 import { User } from '../entities/User';
 import { protect } from '../middlewares/permissions';
 import { MyContext } from '../types/globalTypes';
@@ -22,6 +24,16 @@ import validateEntity from '../utils/validationHelpers';
 
 @Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => [Notification], { nullable: true })
+  @UseMiddleware(protect({ strict: false }))
+  notifications(@Ctx() { res }: MyContext) {
+    if (!res.locals.userId) return [];
+    return Notification.find({
+      where: { recieverId: res.locals.userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   @Query(() => PaginatedUsers)
   @UseMiddleware(protect({ strict: true }))
   async allUsers(

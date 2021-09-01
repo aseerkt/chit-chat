@@ -1,10 +1,15 @@
 import { Flex } from '@chakra-ui/react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { useCurrentRoomCtx } from '../context/RoomContext';
 import {
-  GetNewMessageDocument,
-  GetNewMessageSubscription,
-  useGetMessagesQuery,
+  GetMyRoomsDocument,
+  GetMyRoomsQuery,
+  MessageFieldsFragment,
+  MessageFieldsFragmentDoc,
+  RoomFieldsFragment,
+  RoomFieldsFragmentDoc,
+  useGetNewMessageSubscription,
 } from '../generated/graphql';
 import CSpinner from '../shared/CSpinner';
 import MessageItem from './MessageItem';
@@ -12,49 +17,47 @@ import MessageItem from './MessageItem';
 function RoomMessages() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const params: any = useParams();
-  const { data, loading, subscribeToMore } = useGetMessagesQuery({
+  const { loading, room } = useCurrentRoomCtx();
+
+  useGetNewMessageSubscription({
     variables: { roomId: parseInt(params.roomId) },
     skip: typeof params.roomId === 'undefined' || params.roomId === '@me',
+    onSubscriptionData: ({ client, subscriptionData }) => {
+      const newMessage = subscriptionData.data?.getNewMessage;
+      if (newMessage) {
+        const prevRoomData = client.readFragment<RoomFieldsFragment>({
+          fragment: RoomFieldsFragmentDoc,
+          fragmentName: 'RoomFields',
+          id: `Room:${params.roomId}`,
+        });
+        if (prevRoomData) {
+          client.writeFragment<RoomFieldsFragment>({
+            fragment: RoomFieldsFragmentDoc,
+            fragmentName: 'RoomFields',
+            id: `Room:${params.roomId}`,
+            data: {
+              ...prevRoomData,
+              messages: [...prevRoomData.messages, newMessage],
+            },
+          });
+          scrollToBottom();
+        }
+      }
+    },
   });
 
   const scrollToBottom = () => {
     scrollRef.current?.scrollIntoView(/*{ behavior: 'smooth' }*/);
   };
 
-  const subscribeForMessages = useCallback(() => {
-    subscribeToMore<GetNewMessageSubscription>({
-      document: GetNewMessageDocument,
-      variables: { roomId: parseInt(params.roomId) },
-      updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
-        const newMessageData = subscriptionData.data.getNewMessage;
-        return {
-          getMessages: [...prev.getMessages, newMessageData],
-        };
-      },
-    });
-    scrollToBottom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.roomId]);
-
-  useEffect(() => {
-    if (!!params.roomId) {
-      subscribeForMessages();
-      scrollToBottom();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.roomId]);
-
   useEffect(() => {
     scrollToBottom();
-  }, [data]);
-
-  if (loading) return <CSpinner />;
+  }, [room]);
 
   return (
     <Flex direction='column' flex='1' h='full' overflowY='scroll'>
       <Flex mt='auto' direction='column' justify='flex-end'>
-        {data?.getMessages.map((msg) => (
+        {room?.messages.map((msg) => (
           <MessageItem key={msg.id} msg={msg} />
         ))}
       </Flex>

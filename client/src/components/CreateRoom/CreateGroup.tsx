@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Badge,
   Box,
@@ -10,25 +9,23 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  List,
-  ListItem,
   Text,
-  VStack,
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { useState } from 'react';
+import { FaSearch, FaTimes } from 'react-icons/fa';
+import { useHistory } from 'react-router-dom';
 import {
   useAllUsersQuery,
   useCreateGroupRoomMutation,
   useMeQuery,
   User,
 } from '../../generated/graphql';
+import useSearchUser from '../../hooks/useSearchUser';
+import CSpinner from '../../shared/CSpinner';
 import CreateRoomLoader from './CreateRoomLoader';
 import { CreateRoomProps } from './CreateRoomModal';
-import { useHistory } from 'react-router-dom';
-import useSearchUser from '../../hooks/useSearchUser';
-import { FaSearch, FaTimes } from 'react-icons/fa';
-import CSpinner from '../../shared/CSpinner';
 
 function CreateGroup({ onClose }: CreateRoomProps) {
   const history = useHistory();

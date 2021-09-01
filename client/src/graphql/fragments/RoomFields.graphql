@@ -1,7 +1,10 @@
 fragment RoomFields on Room {
   id
-  type
   name
+  type
+  messages {
+    ...MessageFields
+  }
   members {
     ...UserField
   }

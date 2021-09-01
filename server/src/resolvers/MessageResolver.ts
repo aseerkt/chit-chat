@@ -26,8 +26,9 @@ export class SendMessageResponse extends Errors {
 
 @Resolver(Message)
 export class MessageResolver {
-  @FieldResolver(() => User)
+  @FieldResolver(() => User, { nullable: true })
   sender(@Root() message: Message, @Ctx() { userLoader }: MyContext) {
+    if (!message.senderId) return null;
     if (message.sender) return message.sender;
     return userLoader.load(message.senderId);
   }

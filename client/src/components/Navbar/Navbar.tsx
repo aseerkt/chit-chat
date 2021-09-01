@@ -1,6 +1,5 @@
 import { Box, Flex, Menu, MenuButton, Text } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import ToggleTheme from './ToggleTheme';
 
 function Navbar() {
   return (

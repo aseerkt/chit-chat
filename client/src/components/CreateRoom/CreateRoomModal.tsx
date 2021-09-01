@@ -1,5 +1,4 @@
 import {
-  Button,
   IconButton,
   Modal,
   ModalBody,
@@ -30,7 +29,12 @@ function CreateRoomModal() {
   return (
     <>
       {/* Modal Trigger */}
-      <IconButton aria-label='add-dm-room' icon={<FaEdit />} onClick={onOpen} />
+      <IconButton
+        colorScheme='teal'
+        aria-label='add-dm-room'
+        icon={<FaEdit />}
+        onClick={onOpen}
+      />
 
       {/* Create room modal */}
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose}>

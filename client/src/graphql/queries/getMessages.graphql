@@ -1,5 +1,0 @@
-query GetMessages($roomId: Int!) {
-  getMessages(roomId: $roomId) {
-    ...MessageFields
-  }
-}

@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import AddMessage from '../components/AddMessage';
 import ListRooms from '../components/ListRooms';
 import RoomHeader from '../components/RoomHeader';

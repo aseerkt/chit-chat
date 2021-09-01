@@ -7,12 +7,12 @@ interface MessageProps {
 
 function MessageItem({ msg }: MessageProps) {
   const { data } = useMeQuery();
-  const isMe = data?.me.id === msg.sender.id;
+  const isMe = data?.me.id === msg.sender?.id;
   return (
     <Flex
       p='3'
       alignSelf={isMe ? 'flex-end' : 'flex-start'}
-      bg={isMe ? 'gray.50' : 'white'}
+      bg={isMe ? 'gray.200' : 'white'}
       border='1px solid lightgray'
       borderRadius='xl'
       alignItems='flex-start'
@@ -20,14 +20,14 @@ function MessageItem({ msg }: MessageProps) {
       mx='3'
     >
       <Avatar
-        name={msg.sender.fullName}
+        name={msg.sender?.fullName}
         src='https://bit.ly/tioluwani-kolawole'
         mr='2'
       />
       <Box>
         <Flex align='center'>
           <Text fontWeight='bold' mr='2'>
-            {msg.sender.username}
+            {msg.sender?.username}
           </Text>
           <Text fontSize='x-small' color='gray.500'>
             {new Date(msg.createdAt)

@@ -68,14 +68,16 @@ export type Message = {
   text: Scalars['String'];
   senderId: Scalars['Float'];
   roomId: Scalars['Float'];
-  sender: User;
+  sender?: Maybe<User>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createDMRoom: CreateRoomResponse;
   createGroupRoom: CreateRoomResponse;
+  invitePrivateUser: Scalars['Boolean'];
   sendMessage: SendMessageResponse;
+  notify?: Maybe<Notification>;
   register: UserResponse;
   login: UserResponse;
 };
@@ -92,9 +94,19 @@ export type MutationCreateGroupRoomArgs = {
 };
 
 
+export type MutationInvitePrivateUserArgs = {
+  inviteeId: Scalars['Int'];
+};
+
+
 export type MutationSendMessageArgs = {
   text: Scalars['String'];
   roomId: Scalars['Int'];
+};
+
+
+export type MutationNotifyArgs = {
+  type: NotificationType;
 };
 
 
@@ -107,6 +119,26 @@ export type MutationLoginArgs = {
   loginInput: LoginInput;
 };
 
+export type Notification = {
+  __typename?: 'Notification';
+  id: Scalars['Int'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  type: NotificationType;
+  text: Scalars['String'];
+  recieverId: Scalars['Float'];
+  read: Scalars['Boolean'];
+  redirectId: Scalars['Float'];
+};
+
+/** Specifies whether a room is meant direct messaging or group messaging */
+export enum NotificationType {
+  RequestDm = 'REQUEST_DM',
+  RequestGroup = 'REQUEST_GROUP',
+  AcceptDm = 'ACCEPT_DM',
+  AcceptGroup = 'ACCEPT_GROUP'
+}
+
 export type PaginatedUsers = {
   __typename?: 'PaginatedUsers';
   users: Array<User>;
@@ -116,16 +148,10 @@ export type PaginatedUsers = {
 export type Query = {
   __typename?: 'Query';
   getMyRooms: Array<Room>;
-  getMessages: Array<Message>;
   allUsers: PaginatedUsers;
   searchUser?: Maybe<Array<User>>;
   me: User;
   register: User;
-};
-
-
-export type QueryGetMessagesArgs = {
-  roomId: Scalars['Int'];
 };
 
 
@@ -156,6 +182,7 @@ export type Room = {
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
   type: RoomType;
+  messages: Array<Message>;
   members: Array<User>;
   name: Scalars['String'];
 };
@@ -188,6 +215,7 @@ export type User = {
   fullName: Scalars['String'];
   username: Scalars['String'];
   private: Scalars['Boolean'];
+  notifications?: Maybe<Array<Notification>>;
 };
 
 export type UserResponse = {
@@ -197,9 +225,9 @@ export type UserResponse = {
   token?: Maybe<Scalars['String']>;
 };
 
-export type MessageFieldsFragment = { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } };
+export type MessageFieldsFragment = { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> };
 
-export type RoomFieldsFragment = { __typename?: 'Room', id: number, type: RoomType, name: string, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> };
+export type RoomFieldsFragment = { __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> };
 
 export type UserFieldFragment = { __typename?: 'User', id: number, fullName: string, username: string, private: boolean };
 
@@ -210,7 +238,7 @@ export type CreateDmRoomMutationVariables = Exact<{
 }>;
 
 
-export type CreateDmRoomMutation = { __typename?: 'Mutation', createDMRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, type: RoomType, name: string, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+export type CreateDmRoomMutation = { __typename?: 'Mutation', createDMRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
 export type CreateGroupRoomMutationVariables = Exact<{
   name: Scalars['String'];
@@ -218,7 +246,7 @@ export type CreateGroupRoomMutationVariables = Exact<{
 }>;
 
 
-export type CreateGroupRoomMutation = { __typename?: 'Mutation', createGroupRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, type: RoomType, name: string, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+export type CreateGroupRoomMutation = { __typename?: 'Mutation', createGroupRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
 export type LoginMutationVariables = Exact<{
   loginInput: LoginInput;
@@ -240,7 +268,7 @@ export type SendMessageMutationVariables = Exact<{
 }>;
 
 
-export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'SendMessageResponse', message?: Maybe<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'SendMessageResponse', message?: Maybe<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
 export type AllUsersQueryVariables = Exact<{
   limit?: Maybe<Scalars['Int']>;
@@ -250,17 +278,10 @@ export type AllUsersQueryVariables = Exact<{
 
 export type AllUsersQuery = { __typename?: 'Query', allUsers: { __typename?: 'PaginatedUsers', hasMore: boolean, users: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } };
 
-export type GetMessagesQueryVariables = Exact<{
-  roomId: Scalars['Int'];
-}>;
-
-
-export type GetMessagesQuery = { __typename?: 'Query', getMessages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> };
-
 export type GetMyRoomsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }> };
+export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -279,7 +300,7 @@ export type GetNewMessageSubscriptionVariables = Exact<{
 }>;
 
 
-export type GetNewMessageSubscription = { __typename?: 'Subscription', getNewMessage: { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } } };
+export type GetNewMessageSubscription = { __typename?: 'Subscription', getNewMessage: { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } };
 
 export const UserFieldFragmentDoc = gql`
     fragment UserField on User {
@@ -305,15 +326,19 @@ export const MessageFieldsFragmentDoc = gql`
 export const RoomFieldsFragmentDoc = gql`
     fragment RoomFields on Room {
   id
-  type
   name
+  type
+  messages {
+    ...MessageFields
+  }
   members {
     ...UserField
   }
   createdAt
   updatedAt
 }
-    ${UserFieldFragmentDoc}`;
+    ${MessageFieldsFragmentDoc}
+${UserFieldFragmentDoc}`;
 export const UserResponseFragmentDoc = gql`
     fragment UserResponse on UserResponse {
   user {
@@ -550,54 +575,13 @@ export function useAllUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<A
 export type AllUsersQueryHookResult = ReturnType<typeof useAllUsersQuery>;
 export type AllUsersLazyQueryHookResult = ReturnType<typeof useAllUsersLazyQuery>;
 export type AllUsersQueryResult = Apollo.QueryResult<AllUsersQuery, AllUsersQueryVariables>;
-export const GetMessagesDocument = gql`
-    query GetMessages($roomId: Int!) {
-  getMessages(roomId: $roomId) {
-    ...MessageFields
-  }
-}
-    ${MessageFieldsFragmentDoc}`;
-
-/**
- * __useGetMessagesQuery__
- *
- * To run a query within a React component, call `useGetMessagesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMessagesQuery({
- *   variables: {
- *      roomId: // value for 'roomId'
- *   },
- * });
- */
-export function useGetMessagesQuery(baseOptions: Apollo.QueryHookOptions<GetMessagesQuery, GetMessagesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMessagesQuery, GetMessagesQueryVariables>(GetMessagesDocument, options);
-      }
-export function useGetMessagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMessagesQuery, GetMessagesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMessagesQuery, GetMessagesQueryVariables>(GetMessagesDocument, options);
-        }
-export type GetMessagesQueryHookResult = ReturnType<typeof useGetMessagesQuery>;
-export type GetMessagesLazyQueryHookResult = ReturnType<typeof useGetMessagesLazyQuery>;
-export type GetMessagesQueryResult = Apollo.QueryResult<GetMessagesQuery, GetMessagesQueryVariables>;
 export const GetMyRoomsDocument = gql`
     query GetMyRooms {
   getMyRooms {
-    id
-    name
-    type
-    createdAt
-    members {
-      ...UserField
-    }
+    ...RoomFields
   }
 }
-    ${UserFieldFragmentDoc}`;
+    ${RoomFieldsFragmentDoc}`;
 
 /**
  * __useGetMyRoomsQuery__
