@@ -1,6 +1,5 @@
 import { Flex } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { useCurrentRoomCtx } from '../context/RoomContext';
 
 import MessageItem from './MessageItem';
