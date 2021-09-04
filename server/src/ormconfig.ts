@@ -14,4 +14,9 @@ export default {
     migrationsDir: './src/migrations',
     subscribersDir: './src/subscribers',
   },
+  ssl: __prod__
+    ? {
+        rejectUnauthorized: false,
+      }
+    : false,
 } as ConnectionOptions;
