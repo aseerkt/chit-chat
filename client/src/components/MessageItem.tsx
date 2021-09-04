@@ -19,11 +19,7 @@ function MessageItem({ msg }: MessageProps) {
       my='1'
       mx='3'
     >
-      <Avatar
-        name={msg.sender?.fullName}
-        src='https://bit.ly/tioluwani-kolawole'
-        mr='2'
-      />
+      <Avatar name={msg.sender?.username} mr='2' />
       <Box>
         <Flex align='center'>
           <Text fontWeight='bold' mr='2'>

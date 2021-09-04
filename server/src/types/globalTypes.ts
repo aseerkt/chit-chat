@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { Field, ObjectType } from 'type-graphql';
-import createMembersLoader from '../dataloaders/memberLoader';
-import createMessageLoader from '../dataloaders/messageLoader';
-import createUserLoader from '../dataloaders/userLoader';
+import memberLoader from '../dataloaders/memberLoader';
+import messageLoader from '../dataloaders/messageLoader';
+import userLoader from '../dataloaders/userLoader';
 
 @ObjectType()
 export class FieldError {
@@ -28,7 +28,7 @@ export class DefaultResponse extends Errors {
 export interface MyContext {
   req: Request;
   res: Response & { locals: { userId?: number } };
-  userLoader: ReturnType<typeof createUserLoader>;
-  memberLoader: ReturnType<typeof createMembersLoader>;
-  msgLoader: ReturnType<typeof createMessageLoader>;
+  userLoader: typeof userLoader;
+  memberLoader: typeof memberLoader;
+  msgLoader: typeof messageLoader;
 }

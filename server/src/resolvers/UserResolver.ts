@@ -127,4 +127,15 @@ export class UserResolver {
       return { errors: [{ field: 'unknown', message: err.message }] };
     }
   }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(protect({ strict: true }))
+  async togglePrivacy(@Ctx() { res, userLoader }: MyContext): Promise<boolean> {
+    const currentUser = await userLoader.load(res.locals.userId!);
+    await User.update(
+      { id: res.locals.userId },
+      { private: !currentUser.private }
+    );
+    return true;
+  }
 }

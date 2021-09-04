@@ -19,6 +19,4 @@ async function batchMessages(roomIds: readonly number[]) {
   return roomIds.map((roomId) => messagesToIds[roomId] || []);
 }
 
-export default function createMessageLoader() {
-  return new DataLoader(batchMessages);
-}
+export default new DataLoader(batchMessages);

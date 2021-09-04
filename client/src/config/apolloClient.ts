@@ -4,11 +4,11 @@ import {
   createHttpLink,
   split,
 } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
 import { setContext } from '@apollo/client/link/context';
-import { JWT_LOCAL_NAME } from './constants';
+import { JWT_LOCAL_NAME } from '../constants';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { PaginatedUsers } from './generated/graphql';
+import { PaginatedUsers } from '../generated/graphql';
+import wsLink from './wsLink';
 
 export default function createApolloClient() {
   let apolloClient;
@@ -26,16 +26,6 @@ export default function createApolloClient() {
         authorization: token ? `Bearer ${token}` : '',
       },
     };
-  });
-
-  const wsLink = new WebSocketLink({
-    uri: 'ws://localhost:5000/graphql',
-    options: {
-      reconnect: true,
-      connectionParams: {
-        authToken: localStorage.getItem(JWT_LOCAL_NAME),
-      },
-    },
   });
 
   const splitLink = split(

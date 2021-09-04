@@ -1,0 +1,15 @@
+mutation CreateRoom($type: RoomType!, $name: String, $members: [Int!]!) {
+  createRoom(type: $type, name: $name, members: $members) {
+    room {
+      ...RoomFields
+    }
+    invites {
+      inviteeId
+      inviterId
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

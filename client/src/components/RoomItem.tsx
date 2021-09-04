@@ -18,12 +18,7 @@ function RoomItem({ room }: RoomItemProps) {
       bg={params.roomId === String(room.id) ? 'gray.100' : 'white'}
       align='center'
     >
-      <Avatar
-        size='sm'
-        name={room.name}
-        src='https://bit.ly/tioluwani-kolawole'
-        mr='2'
-      />
+      <Avatar size='sm' name={room.name} mr='2' />
       <strong>{room.name}</strong>
       <Icon ml='auto' as={room.type === RoomType.Dm ? FaUser : FaUsers} />
     </Flex>

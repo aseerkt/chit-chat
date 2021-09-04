@@ -1,14 +1,26 @@
+import { Field, ObjectType } from 'type-graphql';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import Base from './Base';
+import { Room } from './Room';
 import { User } from './User';
 
+@ObjectType()
 @Entity('invites')
 export class Invite extends Base {
+  @Field()
   @Column()
   inviteeId: number;
 
+  @Field()
   @Column()
   inviterId: number;
+
+  @Field()
+  @Column()
+  roomId: number;
+
+  @ManyToOne(() => Room)
+  room: Room;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'inviteeId', referencedColumnName: 'id' })

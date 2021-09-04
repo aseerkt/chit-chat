@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import http from 'http';
+import 'dotenv-safe/config';
 import path from 'path';
 import cors from 'cors';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { execute, subscribe } from 'graphql';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
+import ws from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 import { createConnection } from 'typeorm';
 import {
   ApolloServerPluginLandingPageProductionDefault,
@@ -14,53 +14,31 @@ import {
 import { errorLog, successLog } from './utils/chalkLogs';
 import { __prod__ } from './constants';
 import { buildSchema } from 'type-graphql';
-import createUserLoader from './dataloaders/userLoader';
-import createMemberLoader from './dataloaders/memberLoader';
-import createMessageLoader from './dataloaders/messageLoader';
-import { MyContext } from './types/globalTypes';
+import userLoader from './dataloaders/userLoader';
+import memberLoader from './dataloaders/memberLoader';
+import msgLoader from './dataloaders/messageLoader';
+import ormconfig from './ormconfig';
 
 async function startServer() {
-  await createConnection();
+  await createConnection(ormconfig);
   const app = express();
 
-  app.use(cors({ origin: 'http://localhost:3000' }));
+  app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
 
   const schema = await buildSchema({
     resolvers: [path.join(__dirname, './resolvers/*.{j,t}s')],
   });
 
-  const httpServer = http.createServer(app);
-  const subscriptionServer = SubscriptionServer.create(
-    {
-      schema,
-      execute,
-      subscribe,
-    },
-    {
-      server: httpServer,
-      path: '/graphql',
-    }
-  );
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }) =>
-      ({
-        req,
-        res,
-        userLoader: createUserLoader(),
-        memberLoader: createMemberLoader(),
-        msgLoader: createMessageLoader(),
-      } as MyContext),
+    context: ({ req, res }) => ({
+      req,
+      res,
+      userLoader,
+      memberLoader,
+      msgLoader,
+    }),
     plugins: [
-      {
-        async serverWillStart() {
-          return {
-            async drainServer() {
-              subscriptionServer.close();
-            },
-          };
-        },
-      },
       __prod__
         ? ApolloServerPluginLandingPageProductionDefault
         : ApolloServerPluginLandingPageGraphQLPlayground,
@@ -70,9 +48,19 @@ async function startServer() {
   apolloServer.applyMiddleware({ app });
 
   const PORT = process.env.PORT || 5000;
-  httpServer.listen(PORT, () =>
-    console.log(successLog(`GraphQL API: http://localhost:${PORT}/graphql`))
-  );
+  const server = app.listen(PORT, () => {
+    const wsServer = new ws.Server({
+      server: server,
+      path: '/graphql',
+    });
+
+    useServer({ schema, context: { userLoader } }, wsServer);
+
+    console.log(successLog(`GraphQL API: http://localhost:${PORT}/graphql`));
+  });
 }
 
-startServer().catch((err) => console.error(errorLog(err)));
+startServer().catch((err) => {
+  console.error(errorLog(err));
+  console.error(err);
+});

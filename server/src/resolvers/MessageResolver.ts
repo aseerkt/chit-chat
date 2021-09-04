@@ -29,7 +29,6 @@ export class MessageResolver {
   @FieldResolver(() => User, { nullable: true })
   sender(@Root() message: Message, @Ctx() { userLoader }: MyContext) {
     if (!message.senderId) return null;
-    if (message.sender) return message.sender;
     return userLoader.load(message.senderId);
   }
 
@@ -39,16 +38,15 @@ export class MessageResolver {
   async sendMessage(
     @Arg('roomId', () => Int) roomId: number,
     @Arg('text') text: string,
-    @Ctx() { res, userLoader }: MyContext,
+    @Ctx() { res }: MyContext,
     @PubSub('NEW_MESSAGE') publish: Publisher<Message>
   ): Promise<SendMessageResponse> {
-    const sender = await userLoader.load(res.locals.userId!);
     const message = await Message.create({
       roomId: roomId,
       text,
       senderId: res.locals.userId,
     }).save();
-    await publish({ ...message, sender } as any);
+    await publish(message);
     return { message };
   }
 

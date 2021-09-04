@@ -7,6 +7,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/node": "^16.7.1",
+    "@types/ws": "^7.4.7",
     "concurrently": "^6.2.1",
     "nodemon": "^2.0.12",
     "ts-node": "10.2.1",
@@ -22,16 +23,21 @@
     "dotenv-safe": "^8.2.0",
     "express": "^4.17.1",
     "graphql": "^15.5.1",
+    "graphql-ws": "^5.4.1",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.4.0",
     "reflect-metadata": "^0.1.10",
-    "subscriptions-transport-ws": "^0.9.19",
     "type-graphql": "^1.1.1",
-    "typeorm": "0.2.37"
+    "typeorm": "0.2.37",
+    "ws": "^8.2.1"
   },
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "concurrently -n TSC,SERVER -c blue.bold,yellow.bold \"npx tsc -w\" \"nodemon dist/index.js\" "
+    "dev": "concurrently -n TSC,SERVER -c blue.bold,yellow.bold \"npx tsc -w\" \"nodemon dist/index.js\" ",
+    "typeorm": "ts-node ./node_modules/typeorm/cli.js --config src/ormconfig.ts",
+    "migration:gen": "yarn typeorm migration:generate -n",
+    "migration:run": "yarn typeorm migration:run",
+    "heroku-postbuild": "npx tsc"
   },
   "license": "MIT"
 }

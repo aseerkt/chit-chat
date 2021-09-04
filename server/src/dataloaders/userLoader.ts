@@ -19,6 +19,4 @@ async function batchUsers(ids: readonly number[]) {
   return ids.map((id) => usersToIds[id]);
 }
 
-export default function createUserLoader() {
-  return new DataLoader(batchUsers);
-}
+export default new DataLoader(batchUsers);

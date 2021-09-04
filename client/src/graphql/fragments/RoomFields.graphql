@@ -6,7 +6,10 @@ fragment RoomFields on Room {
     ...MessageFields
   }
   members {
-    ...UserField
+    role
+    user {
+      ...UserField
+    }
   }
   createdAt
   updatedAt

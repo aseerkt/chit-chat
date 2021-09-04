@@ -1,25 +1,15 @@
 import DataLoader from 'dataloader';
-import { getConnection } from 'typeorm';
-import { User } from '../entities/User';
-
-interface MemberWithRoomId extends User {
-  roomId: number;
-}
+import { In } from 'typeorm';
+import { Member } from '../entities/Member';
 
 async function batchMembers(roomIds: readonly number[]) {
-  const members: MemberWithRoomId[] = await getConnection().query(
-    `
-    SELECT
-      u.*, m."roomId"
-    FROM users u
-    LEFT JOIN members m ON m."userId" = u.id
-    WHERE m."roomId" = ANY($1)
+  const members: Member[] = await Member.find({
+    where: { roomId: In(roomIds as number[]) },
+  });
 
-  `,
-    [roomIds]
-  );
+  console.log(members);
 
-  const membersToIds: Record<number, MemberWithRoomId[]> = {};
+  const membersToIds: Record<number, Member[]> = {};
 
   members.forEach((m) => {
     membersToIds[m.roomId] = (membersToIds[m.roomId] || []).concat(m);
@@ -28,6 +18,4 @@ async function batchMembers(roomIds: readonly number[]) {
   return roomIds.map((roomId) => membersToIds[roomId]);
 }
 
-export default function createMemberLoader() {
-  return new DataLoader(batchMembers);
-}
+export default new DataLoader(batchMembers);

@@ -17,8 +17,9 @@ import { useState } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import {
+  RoomType,
   useAllUsersQuery,
-  useCreateGroupRoomMutation,
+  useCreateRoomMutation,
   useMeQuery,
   User,
 } from '../../generated/graphql';
@@ -31,12 +32,12 @@ function CreateGroup({ onClose }: CreateRoomProps) {
   const history = useHistory();
   const [name, setName] = useState('');
   const { data: meData } = useMeQuery();
-  const [memberList, setMemberList] = useState<User[]>([{ ...meData!.me }]);
+  const [memberList, setMemberList] = useState([meData?.me!]);
   const { term, setTerm, userList } = useSearchUser();
   const { data: suggestedData, loading: suggesting } = useAllUsersQuery({
     variables: { limit: 5 },
   });
-  const [createGroup, { loading }] = useCreateGroupRoomMutation();
+  const [createGroup, { loading }] = useCreateRoomMutation();
 
   const addMemberToList = (u: User) => () => {
     if (u.id === meData?.me.id) return;
@@ -57,10 +58,14 @@ function CreateGroup({ onClose }: CreateRoomProps) {
     if (!name || memberList.length < 1) return;
     try {
       createGroup({
-        variables: { name, members: memberList.map((m) => m.id) },
+        variables: {
+          name,
+          members: memberList.map((m) => m.id),
+          type: RoomType.Group,
+        },
         update: (cache, { data }) => {
           if (data) {
-            const { room } = data.createGroupRoom;
+            const { room } = data.createRoom;
             cache.evict({ fieldName: 'getMyRooms' });
             history.push(`/room/${room?.id}`);
             onClose();
@@ -93,9 +98,11 @@ function CreateGroup({ onClose }: CreateRoomProps) {
                 <Badge colorScheme='blue' size='xl'>
                   <Wrap align='center'>
                     <WrapItem>{u.username}</WrapItem>
-                    <WrapItem cursor='pointer'>
-                      <FaTimes onClick={deleteFromMemberList(u.id)} />
-                    </WrapItem>
+                    {meData?.me.id !== u.id && (
+                      <WrapItem cursor='pointer'>
+                        <FaTimes onClick={deleteFromMemberList(u.id)} />
+                      </WrapItem>
+                    )}
                   </Wrap>
                 </Badge>
               </WrapItem>
@@ -106,19 +113,21 @@ function CreateGroup({ onClose }: CreateRoomProps) {
       <Divider my='2' />
       <FormControl mb='2'>
         <FormLabel>Search users</FormLabel>
-        <InputGroup>
-          <InputLeftElement
-            pointerEvents='none'
-            children={<FaSearch color='gray.300' />}
-          />
-          <Input
-            type='search'
-            name='term'
-            value={term}
-            placeholder='Search for user'
-            onChange={(e) => setTerm(e.target.value)}
-          />
-        </InputGroup>
+        {memberList.length < 6 && (
+          <InputGroup>
+            <InputLeftElement
+              pointerEvents='none'
+              children={<FaSearch color='gray.300' />}
+            />
+            <Input
+              type='search'
+              name='term'
+              value={term}
+              placeholder='Search for user'
+              onChange={(e) => setTerm(e.target.value)}
+            />
+          </InputGroup>
+        )}
       </FormControl>
 
       {userList.length > 0 && (

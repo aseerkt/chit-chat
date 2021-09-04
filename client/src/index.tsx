@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom';
 import { ApolloProvider } from '@apollo/client';
-import createApolloClient from './apolloClient';
+import createApolloClient from './config/apolloClient';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';

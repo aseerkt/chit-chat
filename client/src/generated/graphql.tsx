@@ -27,6 +27,7 @@ export type CreateRoomResponse = {
   __typename?: 'CreateRoomResponse';
   errors?: Maybe<Array<FieldError>>;
   room?: Maybe<Room>;
+  invites?: Maybe<Array<Invite>>;
 };
 
 
@@ -47,6 +48,16 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type Invite = {
+  __typename?: 'Invite';
+  id: Scalars['Int'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  inviteeId: Scalars['Float'];
+  inviterId: Scalars['Float'];
+  roomId: Scalars['Float'];
+};
+
 export type LoginInput = {
   username: Scalars['String'];
   password: Scalars['String'];
@@ -54,11 +65,18 @@ export type LoginInput = {
 
 export type Member = {
   __typename?: 'Member';
+  role: MemberRole;
   userId: Scalars['Float'];
-  roomId: Scalars['Float'];
-  user: User;
   createdAt: Scalars['DateTime'];
+  user: User;
 };
+
+/** Specifies member role */
+export enum MemberRole {
+  Admin = 'ADMIN',
+  Member = 'MEMBER',
+  Invited = 'INVITED'
+}
 
 export type Message = {
   __typename?: 'Message';
@@ -73,29 +91,11 @@ export type Message = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createDMRoom: CreateRoomResponse;
-  createGroupRoom: CreateRoomResponse;
-  invitePrivateUser: Scalars['Boolean'];
   sendMessage: SendMessageResponse;
-  notify?: Maybe<Notification>;
+  createRoom: CreateRoomResponse;
   register: UserResponse;
   login: UserResponse;
-};
-
-
-export type MutationCreateDmRoomArgs = {
-  recieverId: Scalars['Int'];
-};
-
-
-export type MutationCreateGroupRoomArgs = {
-  members: Array<Scalars['Int']>;
-  name: Scalars['String'];
-};
-
-
-export type MutationInvitePrivateUserArgs = {
-  inviteeId: Scalars['Int'];
+  togglePrivacy: Scalars['Boolean'];
 };
 
 
@@ -105,8 +105,10 @@ export type MutationSendMessageArgs = {
 };
 
 
-export type MutationNotifyArgs = {
-  type: NotificationType;
+export type MutationCreateRoomArgs = {
+  type: RoomType;
+  members: Array<Scalars['Int']>;
+  name?: Maybe<Scalars['String']>;
 };
 
 
@@ -131,7 +133,7 @@ export type Notification = {
   redirectId: Scalars['Float'];
 };
 
-/** Specifies whether a room is meant direct messaging or group messaging */
+/** Type of Notification */
 export enum NotificationType {
   RequestDm = 'REQUEST_DM',
   RequestGroup = 'REQUEST_GROUP',
@@ -183,7 +185,7 @@ export type Room = {
   updatedAt: Scalars['DateTime'];
   type: RoomType;
   messages: Array<Message>;
-  members: Array<User>;
+  members: Array<Member>;
   name: Scalars['String'];
 };
 
@@ -227,26 +229,22 @@ export type UserResponse = {
 
 export type MessageFieldsFragment = { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> };
 
-export type RoomFieldsFragment = { __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> };
+export type NotificationFieldsFragment = { __typename?: 'Notification', recieverId: number };
+
+export type RoomFieldsFragment = { __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'Member', role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> };
 
 export type UserFieldFragment = { __typename?: 'User', id: number, fullName: string, username: string, private: boolean };
 
 export type UserResponseFragment = { __typename?: 'UserResponse', token?: Maybe<string>, user?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> };
 
-export type CreateDmRoomMutationVariables = Exact<{
-  recieverId: Scalars['Int'];
-}>;
-
-
-export type CreateDmRoomMutation = { __typename?: 'Mutation', createDMRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
-
-export type CreateGroupRoomMutationVariables = Exact<{
-  name: Scalars['String'];
+export type CreateRoomMutationVariables = Exact<{
+  type: RoomType;
+  name?: Maybe<Scalars['String']>;
   members: Array<Scalars['Int']> | Scalars['Int'];
 }>;
 
 
-export type CreateGroupRoomMutation = { __typename?: 'Mutation', createGroupRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'Member', role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }>, invites?: Maybe<Array<{ __typename?: 'Invite', inviteeId: number, inviterId: number }>>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
 export type LoginMutationVariables = Exact<{
   loginInput: LoginInput;
@@ -270,6 +268,11 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'SendMessageResponse', message?: Maybe<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
+export type TogglePrivacyMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TogglePrivacyMutation = { __typename?: 'Mutation', togglePrivacy: boolean };
+
 export type AllUsersQueryVariables = Exact<{
   limit?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
@@ -281,12 +284,12 @@ export type AllUsersQuery = { __typename?: 'Query', allUsers: { __typename?: 'Pa
 export type GetMyRoomsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }> };
+export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, members: Array<{ __typename?: 'Member', role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean, notifications?: Maybe<Array<{ __typename?: 'Notification', recieverId: number }>> } };
 
 export type SearchUserQueryVariables = Exact<{
   term: Scalars['String'];
@@ -302,6 +305,11 @@ export type GetNewMessageSubscriptionVariables = Exact<{
 
 export type GetNewMessageSubscription = { __typename?: 'Subscription', getNewMessage: { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } };
 
+export const NotificationFieldsFragmentDoc = gql`
+    fragment NotificationFields on Notification {
+  recieverId
+}
+    `;
 export const UserFieldFragmentDoc = gql`
     fragment UserField on User {
   id
@@ -332,7 +340,10 @@ export const RoomFieldsFragmentDoc = gql`
     ...MessageFields
   }
   members {
-    ...UserField
+    role
+    user {
+      ...UserField
+    }
   }
   createdAt
   updatedAt
@@ -351,11 +362,15 @@ export const UserResponseFragmentDoc = gql`
   }
 }
     ${UserFieldFragmentDoc}`;
-export const CreateDmRoomDocument = gql`
-    mutation CreateDMRoom($recieverId: Int!) {
-  createDMRoom(recieverId: $recieverId) {
+export const CreateRoomDocument = gql`
+    mutation CreateRoom($type: RoomType!, $name: String, $members: [Int!]!) {
+  createRoom(type: $type, name: $name, members: $members) {
     room {
       ...RoomFields
+    }
+    invites {
+      inviteeId
+      inviterId
     }
     errors {
       field
@@ -364,72 +379,34 @@ export const CreateDmRoomDocument = gql`
   }
 }
     ${RoomFieldsFragmentDoc}`;
-export type CreateDmRoomMutationFn = Apollo.MutationFunction<CreateDmRoomMutation, CreateDmRoomMutationVariables>;
+export type CreateRoomMutationFn = Apollo.MutationFunction<CreateRoomMutation, CreateRoomMutationVariables>;
 
 /**
- * __useCreateDmRoomMutation__
+ * __useCreateRoomMutation__
  *
- * To run a mutation, you first call `useCreateDmRoomMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateDmRoomMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateRoomMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRoomMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createDmRoomMutation, { data, loading, error }] = useCreateDmRoomMutation({
+ * const [createRoomMutation, { data, loading, error }] = useCreateRoomMutation({
  *   variables: {
- *      recieverId: // value for 'recieverId'
- *   },
- * });
- */
-export function useCreateDmRoomMutation(baseOptions?: Apollo.MutationHookOptions<CreateDmRoomMutation, CreateDmRoomMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateDmRoomMutation, CreateDmRoomMutationVariables>(CreateDmRoomDocument, options);
-      }
-export type CreateDmRoomMutationHookResult = ReturnType<typeof useCreateDmRoomMutation>;
-export type CreateDmRoomMutationResult = Apollo.MutationResult<CreateDmRoomMutation>;
-export type CreateDmRoomMutationOptions = Apollo.BaseMutationOptions<CreateDmRoomMutation, CreateDmRoomMutationVariables>;
-export const CreateGroupRoomDocument = gql`
-    mutation CreateGroupRoom($name: String!, $members: [Int!]!) {
-  createGroupRoom(name: $name, members: $members) {
-    room {
-      ...RoomFields
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
-    ${RoomFieldsFragmentDoc}`;
-export type CreateGroupRoomMutationFn = Apollo.MutationFunction<CreateGroupRoomMutation, CreateGroupRoomMutationVariables>;
-
-/**
- * __useCreateGroupRoomMutation__
- *
- * To run a mutation, you first call `useCreateGroupRoomMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateGroupRoomMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createGroupRoomMutation, { data, loading, error }] = useCreateGroupRoomMutation({
- *   variables: {
+ *      type: // value for 'type'
  *      name: // value for 'name'
  *      members: // value for 'members'
  *   },
  * });
  */
-export function useCreateGroupRoomMutation(baseOptions?: Apollo.MutationHookOptions<CreateGroupRoomMutation, CreateGroupRoomMutationVariables>) {
+export function useCreateRoomMutation(baseOptions?: Apollo.MutationHookOptions<CreateRoomMutation, CreateRoomMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateGroupRoomMutation, CreateGroupRoomMutationVariables>(CreateGroupRoomDocument, options);
+        return Apollo.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument, options);
       }
-export type CreateGroupRoomMutationHookResult = ReturnType<typeof useCreateGroupRoomMutation>;
-export type CreateGroupRoomMutationResult = Apollo.MutationResult<CreateGroupRoomMutation>;
-export type CreateGroupRoomMutationOptions = Apollo.BaseMutationOptions<CreateGroupRoomMutation, CreateGroupRoomMutationVariables>;
+export type CreateRoomMutationHookResult = ReturnType<typeof useCreateRoomMutation>;
+export type CreateRoomMutationResult = Apollo.MutationResult<CreateRoomMutation>;
+export type CreateRoomMutationOptions = Apollo.BaseMutationOptions<CreateRoomMutation, CreateRoomMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginInput: LoginInput!) {
   login(loginInput: $loginInput) {
@@ -536,6 +513,36 @@ export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<
 export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
 export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
 export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
+export const TogglePrivacyDocument = gql`
+    mutation TogglePrivacy {
+  togglePrivacy
+}
+    `;
+export type TogglePrivacyMutationFn = Apollo.MutationFunction<TogglePrivacyMutation, TogglePrivacyMutationVariables>;
+
+/**
+ * __useTogglePrivacyMutation__
+ *
+ * To run a mutation, you first call `useTogglePrivacyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTogglePrivacyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [togglePrivacyMutation, { data, loading, error }] = useTogglePrivacyMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTogglePrivacyMutation(baseOptions?: Apollo.MutationHookOptions<TogglePrivacyMutation, TogglePrivacyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TogglePrivacyMutation, TogglePrivacyMutationVariables>(TogglePrivacyDocument, options);
+      }
+export type TogglePrivacyMutationHookResult = ReturnType<typeof useTogglePrivacyMutation>;
+export type TogglePrivacyMutationResult = Apollo.MutationResult<TogglePrivacyMutation>;
+export type TogglePrivacyMutationOptions = Apollo.BaseMutationOptions<TogglePrivacyMutation, TogglePrivacyMutationVariables>;
 export const AllUsersDocument = gql`
     query AllUsers($limit: Int, $offset: Int) {
   allUsers(limit: $limit, offset: $offset) {
@@ -613,9 +620,13 @@ export const MeDocument = gql`
     query Me {
   me {
     ...UserField
+    notifications {
+      ...NotificationFields
+    }
   }
 }
-    ${UserFieldFragmentDoc}`;
+    ${UserFieldFragmentDoc}
+${NotificationFieldsFragmentDoc}`;
 
 /**
  * __useMeQuery__

@@ -1,0 +1,3 @@
+fragment NotificationFields on Notification {
+  recieverId
+}

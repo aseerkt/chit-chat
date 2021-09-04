@@ -1,5 +1,8 @@
-import { Box, Flex, Menu, MenuButton, Text } from '@chakra-ui/react';
+import { Box, Flex, Text, Wrap, WrapItem } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
+import { BsChatSquareDotsFill } from 'react-icons/bs';
+import Invites from './Invites';
+import Notifications from './Notifications';
 
 function Navbar() {
   return (
@@ -12,17 +15,23 @@ function Navbar() {
         h='full'
       >
         <Link to='/'>
-          <Text fontSize='2xl' fontWeight='bolder'>
-            Apollo DM
-          </Text>
+          <Flex align='center'>
+            <BsChatSquareDotsFill size='1.7em' color='green' />
+            <Text ml='2' fontSize='2xl' fontWeight='bolder'>
+              Chit<span style={{ color: 'green' }}>Chat</span>
+            </Text>
+          </Flex>
         </Link>
-        <Flex align='center'>
+        <Wrap align='center'>
           {/* TODO: toggle theme */}
           {/* <ToggleTheme /> */}
-          <Menu>
-            <MenuButton as={Text}>Notifs</MenuButton>
-          </Menu>
-        </Flex>
+          <WrapItem>
+            <Invites />
+          </WrapItem>
+          <WrapItem>
+            <Notifications />
+          </WrapItem>
+        </Wrap>
       </Flex>
     </Box>
   );

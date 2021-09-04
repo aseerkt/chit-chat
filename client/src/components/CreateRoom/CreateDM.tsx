@@ -2,8 +2,10 @@ import { Flex, Button, Avatar, IconButton } from '@chakra-ui/react';
 import { FaPlusCircle } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import {
+  RoomType,
   useAllUsersQuery,
-  useCreateDmRoomMutation,
+  useCreateRoomMutation,
+  useMeQuery,
 } from '../../generated/graphql';
 import CSpinner from '../../shared/CSpinner';
 import CreateRoomLoader from './CreateRoomLoader';
@@ -11,10 +13,11 @@ import { CreateRoomProps } from './CreateRoomModal';
 
 function CreateDM({ onClose }: CreateRoomProps) {
   const history = useHistory();
+  const { data: meData } = useMeQuery();
   const { data, loading, fetchMore, variables } = useAllUsersQuery({
     variables: { limit: 5 },
   });
-  const [createDMRoom, { loading: creating }] = useCreateDmRoomMutation();
+  const [createDMRoom, { loading: creating }] = useCreateRoomMutation();
 
   return (
     <Flex direction='column'>
@@ -25,11 +28,14 @@ function CreateDM({ onClose }: CreateRoomProps) {
           key={`_suggest_${u.id}`}
           onClick={async () => {
             await createDMRoom({
-              variables: { recieverId: u.id },
+              variables: {
+                type: RoomType.Dm,
+                members: [u.id, meData?.me.id!],
+              },
               update: (cache, { data }) => {
-                if (data?.createDMRoom.room) {
+                if (data?.createRoom.room) {
                   cache.evict({ fieldName: 'getMyRooms' });
-                  history.push(`/room/${data.createDMRoom.room.id}`);
+                  history.push(`/room/${data.createRoom.room.id}`);
                   onClose();
                 }
               },

@@ -12,8 +12,7 @@ export enum NotificationType {
 
 registerEnumType(NotificationType, {
   name: 'NotificationType',
-  description:
-    'Specifies whether a room is meant direct messaging or group messaging',
+  description: 'Type of Notification',
 });
 
 @ObjectType()
@@ -23,7 +22,6 @@ export class Notification extends Base {
   @Column({
     type: 'enum',
     enum: NotificationType,
-    default: NotificationType.REQUEST_DM,
   })
   type: NotificationType;
 
@@ -36,7 +34,7 @@ export class Notification extends Base {
   recieverId: number;
 
   @Field()
-  @Column()
+  @Column({ default: false })
   read: boolean;
 
   @Field()
