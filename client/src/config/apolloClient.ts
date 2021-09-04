@@ -5,7 +5,7 @@ import {
   split,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import { JWT_LOCAL_NAME } from '../constants';
+import { API_URL, JWT_LOCAL_NAME } from '../constants';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { PaginatedUsers } from '../generated/graphql';
 import wsLink from './wsLink';
@@ -14,7 +14,7 @@ export default function createApolloClient() {
   let apolloClient;
   let cache;
 
-  const httpLink = createHttpLink({ uri: 'http://localhost:5000/graphql' });
+  const httpLink = createHttpLink({ uri: API_URL });
 
   const authLink = setContext((_, { headers }) => {
     // get the authentication token from local storage if it exists

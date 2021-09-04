@@ -23,7 +23,7 @@ async function startServer() {
   await createConnection(ormconfig);
   const app = express();
 
-  app.use(cors({ origin: process.env.CLIENT_URL }));
+  app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
 
   const schema = await buildSchema({
     resolvers: [path.join(__dirname, './resolvers/*.{j,t}s')],
