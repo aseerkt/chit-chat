@@ -51,7 +51,7 @@ function RoomMessages() {
         return {
           getMessages: {
             ...prevMsgData.getMessages,
-            messages: [...prevMsgData.getMessages.messages, newMessage],
+            messages: [newMessage, ...prevMsgData.getMessages.messages],
           },
         };
       },
@@ -73,21 +73,31 @@ function RoomMessages() {
   if (networkStatus === NetworkStatus.loading) return <CSpinner />;
 
   return (
-    <Flex direction='column' overflowY='scroll'>
-      <Flex mt='auto' direction='column' justify='flex-end'>
-        {data?.getMessages?.hasMore && (
-          <IconButton
-            aria-label='fetch more button'
-            icon={<FaPlusSquare />}
-            onClick={fetchMoreMessages}
-          />
-        )}
-        {networkStatus === NetworkStatus.fetchMore && <CSpinner />}
+    <Flex direction='column' flex='1' justify='flex-end' overflowY='hidden'>
+      <Flex
+        mt='auto'
+        direction='column-reverse'
+        minH='min-content'
+        overflowY='auto'
+      >
+        <ScrollRefComponent />
         {data?.getMessages.messages.map((msg) => (
           <MessageItem key={msg.id} msg={msg} />
         ))}
+        {data?.getMessages?.hasMore && (
+          <Flex justify='center' my='3'>
+            <IconButton
+              aria-label='fetch more button'
+              icon={<FaPlusSquare />}
+              isRound
+              size='md'
+              colorScheme='green'
+              onClick={fetchMoreMessages}
+            />
+          </Flex>
+        )}
+        {networkStatus === NetworkStatus.fetchMore && <CSpinner />}
       </Flex>
-      <ScrollRefComponent />
     </Flex>
   );
 }

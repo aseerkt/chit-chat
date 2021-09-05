@@ -44,7 +44,7 @@ export class MessageResolver {
       take: limit + 1,
     });
     return {
-      messages: messages.slice(0, limit).reverse(),
+      messages: messages.slice(0, limit),
       hasMore: messages.length === limit + 1,
     };
   }
