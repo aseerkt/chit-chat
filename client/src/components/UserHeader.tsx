@@ -43,15 +43,13 @@ function UserHeader() {
 
   return (
     <Flex
-      cursor='pointer'
       p='3'
       align='center'
       justify='space-between'
       borderBottom='1px solid lightgray'
-      h='16'
     >
       <Flex align='center'>
-        <Avatar size='md' name={meData?.me.username} mr='2' />
+        <Avatar size='sm' name={meData?.me.username} mr='2' />
         <Text fontSize='xl' fontWeight='bold'>
           {meData?.me.username}
         </Text>
@@ -64,6 +62,7 @@ function UserHeader() {
           <Menu placement='bottom-end'>
             <MenuButton
               as={IconButton}
+              isRound
               aria-label='notifications'
               icon={<FaCog size='1.4em' />}
             />

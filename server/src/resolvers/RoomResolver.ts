@@ -70,7 +70,6 @@ export class RoomResolver {
       .andWhere("m.\"role\" IN ('ADMIN', 'MEMBER')")
       .orderBy('msg."createdAt"', 'DESC')
       .getMany();
-    console.log({ room: results });
     return results;
   }
 

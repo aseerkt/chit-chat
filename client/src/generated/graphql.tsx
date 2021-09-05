@@ -30,7 +30,6 @@ export type CreateRoomResponse = {
   invites?: Maybe<Array<Invite>>;
 };
 
-
 export type DefaultResponse = {
   __typename?: 'DefaultResponse';
   errors?: Maybe<Array<FieldError>>;

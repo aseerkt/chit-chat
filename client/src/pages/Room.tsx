@@ -4,13 +4,13 @@ import ListRooms from '../components/ListRooms';
 import RoomHeader from '../components/RoomHeader';
 import RoomMessages from '../components/RoomMessages';
 import UserHeader from '../components/UserHeader';
-import MessageProvider from '../context/MessageCtx';
+import ScrollStateProvider from '../context/MessageScrollCtx';
 import CurrentRoomProvider from '../context/RoomContext';
 
 function Room() {
   return (
     <CurrentRoomProvider>
-      <MessageProvider>
+      <ScrollStateProvider>
         <Flex border='1px solid lightgray' borderRadius='sm' h='full'>
           <Flex
             maxW='72'
@@ -28,7 +28,7 @@ function Room() {
             <AddMessage />
           </Flex>
         </Flex>
-      </MessageProvider>
+      </ScrollStateProvider>
     </CurrentRoomProvider>
   );
 }
