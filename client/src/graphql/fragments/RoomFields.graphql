@@ -2,9 +2,6 @@ fragment RoomFields on Room {
   id
   name
   type
-  messages {
-    ...MessageFields
-  }
   members {
     role
     user {

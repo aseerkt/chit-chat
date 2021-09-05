@@ -1,6 +1,6 @@
 import { AuthenticationError } from 'apollo-server-express';
 import { MiddlewareFn } from 'type-graphql/dist/interfaces/Middleware';
-import { Room } from '../entities/Room';
+import { MemberRole } from '../entities/Member';
 import { MyContext } from '../types/globalTypes';
 import { getPayload } from '../utils/jwtHelper';
 
@@ -33,15 +33,12 @@ export const hasRoomAccess: MiddlewareFn<MyContext> = async function (
   next
 ) {
   try {
-    const room = await Room.findOne({
-      where: { id: args.roomId || root.roomId },
-      relations: ['members'],
-    });
-    if (!room) {
-      throw new Error('Room not found');
-    }
-    const memberIds = room.members.map((m) => m.userId);
-    if (!memberIds.includes(context.res.locals.userId!)) {
+    const members = await context.memberLoader.load(args.roomId || root.roomId);
+
+    const currentMember = members.find(
+      (m) => m.userId === context.res.locals.userId
+    );
+    if (!currentMember || currentMember.role === MemberRole.INVITED) {
       throw new Error('Access Denied');
     }
     return next();

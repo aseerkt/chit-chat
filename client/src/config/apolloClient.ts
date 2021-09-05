@@ -7,7 +7,7 @@ import {
 import { setContext } from '@apollo/client/link/context';
 import { API_URL, JWT_LOCAL_NAME } from '../constants';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { PaginatedUsers } from '../generated/graphql';
+import { PaginatedMessages, PaginatedUsers } from '../generated/graphql';
 import wsLink from './wsLink';
 
 export default function createApolloClient() {
@@ -45,6 +45,21 @@ export default function createApolloClient() {
       typePolicies: {
         Query: {
           fields: {
+            getMessages: {
+              keyArgs: [],
+              merge(
+                existing: PaginatedMessages | undefined,
+                incoming: PaginatedMessages,
+                { args }
+              ) {
+                if (!args?.cursor) return incoming;
+
+                console.log({ cursor: args?.cursor });
+                const mergedMessages = existing?.messages.slice(0) || [];
+                mergedMessages.unshift(...incoming.messages);
+                return { ...incoming, messages: mergedMessages };
+              },
+            },
             allUsers: {
               keyArgs: [],
               merge(

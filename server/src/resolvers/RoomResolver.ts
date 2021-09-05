@@ -14,7 +14,6 @@ import {
 import { getConnection, getRepository } from 'typeorm';
 import { Invite } from '../entities/Invite';
 import { Member, MemberRole } from '../entities/Member';
-import { Message } from '../entities/Message';
 import { Room, RoomType } from '../entities/Room';
 
 import { protect } from '../middlewares/permissions';
@@ -32,12 +31,12 @@ export class CreateRoomResponse extends Errors {
 @Resolver(Room)
 export class RoomResolver {
   // Field Resolvers
-  @FieldResolver(() => [Message])
-  async messages(@Root() room: Room, @Ctx() { msgLoader }: MyContext) {
-    const messages = await msgLoader.load(room.id);
-    console.log(messages);
-    return messages;
-  }
+  // @FieldResolver(() => [Message])
+  // async messages(@Root() room: Room, @Ctx() { msgLoader }: MyContext) {
+  //   const messages = await msgLoader.load(room.id);
+  //   console.log(messages);
+  //   return messages;
+  // }
 
   @FieldResolver(() => [Member])
   members(@Root() room: Room, @Ctx() { memberLoader }: MyContext) {

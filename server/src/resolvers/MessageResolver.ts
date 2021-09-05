@@ -1,9 +1,7 @@
 import {
   Arg,
-  Field,
   Int,
   Mutation,
-  ObjectType,
   Publisher,
   PubSub,
   Resolver,
@@ -12,17 +10,14 @@ import {
   Ctx,
   FieldResolver,
   Root,
+  Query,
 } from 'type-graphql';
 import { User } from '../entities/User';
 import { Message } from '../entities/Message';
 import { protect, hasRoomAccess } from '../middlewares/permissions';
-import { Errors, MyContext } from '../types/globalTypes';
-
-@ObjectType()
-export class SendMessageResponse extends Errors {
-  @Field(() => Message, { nullable: true })
-  message?: Message;
-}
+import { MyContext } from '../types/globalTypes';
+import { LessThan } from 'typeorm';
+import { PaginatedMessages, SendMessageResponse } from '../types/MessageTypes';
 
 @Resolver(Message)
 export class MessageResolver {
@@ -30,6 +25,28 @@ export class MessageResolver {
   sender(@Root() message: Message, @Ctx() { userLoader }: MyContext) {
     if (!message.senderId) return null;
     return userLoader.load(message.senderId);
+  }
+
+  @Query(() => PaginatedMessages)
+  @UseMiddleware(protect({ strict: true }))
+  @UseMiddleware(hasRoomAccess)
+  async getMessages(
+    @Arg('roomId', () => Int) roomId: number,
+    @Arg('limit', () => Int) limit: number,
+    @Arg('cursor', () => Date, { nullable: true }) cursor: Date
+  ): Promise<PaginatedMessages> {
+    const cursorSelect = cursor
+      ? { createdAt: LessThan(new Date(cursor)) }
+      : {};
+    const messages = await Message.find({
+      where: { roomId, ...cursorSelect },
+      order: { createdAt: 'DESC' },
+      take: limit + 1,
+    });
+    return {
+      messages: messages.slice(0, limit).reverse(),
+      hasMore: messages.length === limit + 1,
+    };
   }
 
   @Mutation(() => SendMessageResponse)
