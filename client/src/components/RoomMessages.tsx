@@ -16,7 +16,6 @@ function RoomMessages() {
   const params = useParams<{ roomId: string }>();
   const {
     data,
-    loading,
     variables: getMessagesVariables,
     networkStatus,
     fetchMore,
