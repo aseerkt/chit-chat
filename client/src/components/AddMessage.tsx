@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom';
 import { Button, Flex, FormControl, Input } from '@chakra-ui/react';
 import { RoomType, useSendMessageMutation } from '../generated/graphql';
 import { useCurrentRoomCtx } from '../context/RoomContext';
+import { useScrollCtx } from '../context/MessageScrollCtx';
 
 function AddMessage() {
   const params: any = useParams();
   const { room } = useCurrentRoomCtx();
+  const { scrollToBottom } = useScrollCtx();
   const [sendMsg, { loading }] = useSendMessageMutation();
   const [text, setText] = useState('');
 
@@ -19,6 +21,7 @@ function AddMessage() {
         update: (cache, { data }) => {
           if (data?.sendMessage.message) {
             setText('');
+            scrollToBottom();
           }
         },
       });

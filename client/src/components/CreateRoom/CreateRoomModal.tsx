@@ -15,7 +15,8 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FaEdit, FaLock } from 'react-icons/fa';
+import { FaLock } from 'react-icons/fa';
+import { FiEdit2 } from 'react-icons/fi';
 import CreateDM from './CreateDM';
 import CreateGroup from './CreateGroup';
 
@@ -32,8 +33,9 @@ function CreateRoomModal() {
       <IconButton
         colorScheme='teal'
         aria-label='add-dm-room'
-        icon={<FaEdit />}
+        icon={<FiEdit2 />}
         onClick={onOpen}
+        isRound
       />
 
       {/* Create room modal */}

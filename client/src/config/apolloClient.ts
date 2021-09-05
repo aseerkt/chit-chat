@@ -56,7 +56,7 @@ export default function createApolloClient() {
 
                 console.log({ cursor: args?.cursor });
                 const mergedMessages = existing?.messages.slice(0) || [];
-                mergedMessages.unshift(...incoming.messages);
+                mergedMessages.push(...incoming.messages);
                 return { ...incoming, messages: mergedMessages };
               },
             },
