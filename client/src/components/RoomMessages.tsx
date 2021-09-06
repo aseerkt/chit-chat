@@ -1,7 +1,8 @@
-import { useCallback, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { NetworkStatus } from '@apollo/client';
 import { Flex, IconButton } from '@chakra-ui/react';
+import { Fragment, useCallback, useEffect } from 'react';
 import { FaPlusSquare } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
 import { useScrollCtx } from '../context/MessageScrollCtx';
 import {
   GetNewMessageDocument,
@@ -9,8 +10,9 @@ import {
   useGetMessagesQuery,
 } from '../generated/graphql';
 import CSpinner from '../shared/CSpinner';
+import { isSameDay, isYesterday } from '../utils/dateUtils';
+import DateSeperator from './DateSeperator';
 import MessageItem from './MessageItem';
-import { NetworkStatus } from '@apollo/client';
 
 function RoomMessages() {
   const params = useParams<{ roomId: string }>();
@@ -44,15 +46,15 @@ function RoomMessages() {
     subscribeToMore<GetNewMessageSubscription>({
       document: GetNewMessageDocument,
       variables: getMessagesVariables,
-      updateQuery: (prevMsgData, { subscriptionData, variables }) => {
+      updateQuery: (prev, { subscriptionData }) => {
         const newMessage = subscriptionData.data?.getNewMessage;
-        if (!newMessage) return prevMsgData;
-        return {
+        if (!newMessage) return prev;
+        return Object.assign({}, prev, {
           getMessages: {
-            ...prevMsgData.getMessages,
-            messages: [newMessage, ...prevMsgData.getMessages.messages],
+            hasMore: 'sub',
+            messages: [newMessage],
           },
-        };
+        });
       },
     });
     scrollToBottom();
@@ -78,11 +80,36 @@ function RoomMessages() {
         direction='column-reverse'
         minH='min-content'
         overflowY='auto'
+        onScroll={(e) => {
+          // console.log(e.currentTarget.scrollTop);
+        }}
       >
         <ScrollRefComponent />
-        {data?.getMessages.messages.map((msg) => (
-          <MessageItem key={msg.id} msg={msg} />
-        ))}
+        {data?.getMessages.messages.map((msg, index, msgArr) => {
+          let separatorText: string | null = null;
+          if (index !== msgArr.length - 1) {
+            let currentMsgDate = msg.createdAt;
+            let nextMsgDate = msgArr[index + 1].createdAt;
+            if (
+              isSameDay(currentMsgDate) === true &&
+              isSameDay(nextMsgDate) !== true
+            )
+              separatorText = 'Today';
+            else if (
+              isYesterday(currentMsgDate) === true &&
+              isYesterday(nextMsgDate) !== true
+            )
+              separatorText = 'Yesterday';
+          } else {
+            if (isSameDay(msg.createdAt)) separatorText = 'Today';
+          }
+          return (
+            <Fragment key={msg.id}>
+              <MessageItem msg={msg} />
+              {separatorText && <DateSeperator>{separatorText}</DateSeperator>}
+            </Fragment>
+          );
+        })}
         {data?.getMessages?.hasMore && (
           <Flex justify='center' my='3'>
             <IconButton

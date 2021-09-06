@@ -46,16 +46,20 @@ export default function createApolloClient() {
         Query: {
           fields: {
             getMessages: {
-              keyArgs: [],
+              keyArgs: ['roomId'],
               merge(
                 existing: PaginatedMessages | undefined,
                 incoming: PaginatedMessages,
-                { args }
+                { args, variables }
               ) {
-                if (!args?.cursor) return incoming;
-
-                console.log({ cursor: args?.cursor });
                 const mergedMessages = existing?.messages.slice(0) || [];
+                if (incoming.hasMore === ('sub' as any)) {
+                  console.log(incoming);
+                  return {
+                    ...existing,
+                    messages: [incoming.messages[0], ...mergedMessages],
+                  };
+                }
                 mergedMessages.push(...incoming.messages);
                 return { ...incoming, messages: mergedMessages };
               },
