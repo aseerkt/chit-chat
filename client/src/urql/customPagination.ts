@@ -3,7 +3,7 @@ import { Resolver } from '@urql/exchange-graphcache';
 
 // https://github.com/benawad/lireddit/blob/master/web/src/utils/createUrqlClient.ts
 export const customPagination = (
-  __typename: string
+  seperator?: string
 ): Resolver<any, any, any> => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
@@ -24,14 +24,34 @@ export const customPagination = (
     info.partial = !isItInTheCache;
     let hasMore = true;
     const results: string[] = [];
+    let __typename: string = '';
     fieldInfos.forEach((fi) => {
-      const key = cache.resolve(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, 'nodes') as string[];
-      const _hasMore = cache.resolve(key, 'hasMore');
-      if (!_hasMore) {
-        hasMore = _hasMore as boolean;
+      console.log(fi.fieldKey);
+      if (
+        seperator &&
+        fi.arguments &&
+        fieldArgs[seperator] === fi.arguments[seperator]
+      ) {
+        const key = cache.resolve(entityKey, fi.fieldKey) as string;
+        const data = cache.resolve(key, 'nodes') as string[];
+        const _hasMore = cache.resolve(key, 'hasMore');
+
+        if (!__typename)
+          __typename = cache.resolve(key, '__typename') as string;
+        if (!_hasMore) hasMore = _hasMore as boolean;
+
+        results.push(...data);
+      } else if (!seperator) {
+        const key = cache.resolve(entityKey, fi.fieldKey) as string;
+        const data = cache.resolve(key, 'nodes') as string[];
+        const _hasMore = cache.resolve(key, 'hasMore');
+
+        if (!__typename)
+          __typename = cache.resolve(key, '__typename') as string;
+        if (!_hasMore) hasMore = _hasMore as boolean;
+
+        results.push(...data);
       }
-      results.push(...data);
     });
 
     return {

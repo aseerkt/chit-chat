@@ -13,7 +13,7 @@ import {
   LoginMutation,
   TogglePrivacyMutation,
 } from '../generated/graphql';
-import { customPagination } from './utils';
+import { customPagination } from './customPagination';
 
 export default cacheExchange({
   keys: {
@@ -23,8 +23,8 @@ export default cacheExchange({
   },
   resolvers: {
     Query: {
-      getMessages: customPagination('PaginatedMessages'),
-      allUsers: customPagination('PaginatedUsers'),
+      getMessages: customPagination('roomId'),
+      allUsers: customPagination(),
     },
   },
   updates: {

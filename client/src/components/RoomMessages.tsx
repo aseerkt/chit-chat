@@ -25,7 +25,7 @@ function RoomMessages() {
     pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
   });
 
-  const { scrollToBottom, ScrollRefComponent } = useScrollCtx();
+  const { ScrollRefComponent } = useScrollCtx();
 
   useGetNewMessageSubscription({
     variables: { roomId: parseInt(params.roomId) },
@@ -33,9 +33,13 @@ function RoomMessages() {
   });
 
   useEffect(() => {
-    scrollToBottom();
+    setVariables((prev) => ({
+      ...prev,
+      cursor: null,
+      roomId: parseInt(params.roomId),
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetching]);
+  }, [params.roomId]);
 
   return (
     <Flex direction='column' flex='1' justify='flex-end' overflowY='hidden'>
