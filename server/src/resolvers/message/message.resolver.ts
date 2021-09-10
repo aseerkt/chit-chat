@@ -12,12 +12,20 @@ import {
   Root,
   Query,
 } from 'type-graphql';
-import { User } from '../entities/User';
-import { Message } from '../entities/Message';
-import { protect, hasRoomAccess } from '../middlewares/permissions';
-import { MyContext } from '../types/globalTypes';
+import { User } from '../../entities/User';
+import { Message } from '../../entities/Message';
+import { protect, hasRoomAccess } from '../../middlewares/permissions';
+import { MyContext } from '../../types/global.types';
 import { LessThan } from 'typeorm';
-import { PaginatedMessages, SendMessageResponse } from '../types/MessageTypes';
+import { PaginatedMessages, SendMessageResponse } from './message.types';
+
+// @ObjectType()
+// class MessagePayload {
+//   @Field()
+//   actionType: 'DELETE' | 'CREATE' | 'UPDATE';
+//   @Field(() => Message, { nullable: true })
+//   message: Message;
+// }
 
 @Resolver(Message)
 export class MessageResolver {
@@ -44,7 +52,7 @@ export class MessageResolver {
       take: limit + 1,
     });
     return {
-      messages: messages.slice(0, limit),
+      nodes: messages.slice(0, limit),
       hasMore: messages.length === limit + 1,
     };
   }

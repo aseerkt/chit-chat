@@ -9,22 +9,18 @@ function AddMessage() {
   const params: any = useParams();
   const { room } = useCurrentRoomCtx();
   const { scrollToBottom } = useScrollCtx();
-  const [sendMsg, { loading }] = useSendMessageMutation();
+  const [{ fetching, data }, sendMsg] = useSendMessageMutation();
   const [text, setText] = useState('');
 
   const sendMessage: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     try {
-      await sendMsg({
-        variables: { roomId: parseInt(params.roomId), text },
-        update: (cache, { data }) => {
-          if (data?.sendMessage.message) {
-            setText('');
-            scrollToBottom();
-          }
-        },
-      });
+      await sendMsg({ roomId: parseInt(params.roomId), text });
+      if (data?.sendMessage.message) {
+        setText('');
+        scrollToBottom();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -52,7 +48,7 @@ function AddMessage() {
         <Button
           colorScheme='blue'
           disabled={!text}
-          isLoading={loading}
+          isLoading={fetching}
           type='submit'
           h='full'
         >

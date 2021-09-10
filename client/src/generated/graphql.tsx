@@ -1,10 +1,10 @@
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import gql from 'graphql-tag';
+import * as Urql from 'urql';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-const defaultOptions =  {}
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -66,6 +66,7 @@ export type Member = {
   __typename?: 'Member';
   role: MemberRole;
   userId: Scalars['Float'];
+  roomId: Scalars['Float'];
   createdAt: Scalars['DateTime'];
   user: User;
 };
@@ -142,13 +143,13 @@ export enum NotificationType {
 
 export type PaginatedMessages = {
   __typename?: 'PaginatedMessages';
-  messages: Array<Message>;
+  nodes: Array<Message>;
   hasMore: Scalars['Boolean'];
 };
 
 export type PaginatedUsers = {
   __typename?: 'PaginatedUsers';
-  users: Array<User>;
+  nodes: Array<User>;
   hasMore: Scalars['Boolean'];
 };
 
@@ -243,7 +244,7 @@ export type MessageFieldsFragment = { __typename?: 'Message', id: number, text: 
 
 export type NotificationFieldsFragment = { __typename?: 'Notification', recieverId: number };
 
-export type RoomFieldsFragment = { __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> };
+export type RoomFieldsFragment = { __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', roomId: number, userId: number, role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> };
 
 export type UserFieldFragment = { __typename?: 'User', id: number, fullName: string, username: string, private: boolean };
 
@@ -256,7 +257,7 @@ export type CreateRoomMutationVariables = Exact<{
 }>;
 
 
-export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }>, invites?: Maybe<Array<{ __typename?: 'Invite', inviteeId: number, inviterId: number }>>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', roomId: number, userId: number, role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }>, invites?: Maybe<Array<{ __typename?: 'Invite', inviteeId: number, inviterId: number }>>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
 export type LoginMutationVariables = Exact<{
   loginInput: LoginInput;
@@ -291,7 +292,7 @@ export type AllUsersQueryVariables = Exact<{
 }>;
 
 
-export type AllUsersQuery = { __typename?: 'Query', allUsers: { __typename?: 'PaginatedUsers', hasMore: boolean, users: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } };
+export type AllUsersQuery = { __typename?: 'Query', allUsers: { __typename?: 'PaginatedUsers', hasMore: boolean, nodes: Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } };
 
 export type GetMessagesQueryVariables = Exact<{
   roomId: Scalars['Int'];
@@ -300,12 +301,12 @@ export type GetMessagesQueryVariables = Exact<{
 }>;
 
 
-export type GetMessagesQuery = { __typename?: 'Query', getMessages: { __typename?: 'PaginatedMessages', hasMore: boolean, messages: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }> } };
+export type GetMessagesQuery = { __typename?: 'Query', getMessages: { __typename?: 'PaginatedMessages', hasMore: boolean, nodes: Array<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }> } };
 
 export type GetMyRoomsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }> };
+export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', roomId: number, userId: number, role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -358,6 +359,8 @@ export const RoomFieldsFragmentDoc = gql`
   name
   type
   members {
+    roomId
+    userId
     role
     user {
       ...UserField
@@ -396,34 +399,10 @@ export const CreateRoomDocument = gql`
   }
 }
     ${RoomFieldsFragmentDoc}`;
-export type CreateRoomMutationFn = Apollo.MutationFunction<CreateRoomMutation, CreateRoomMutationVariables>;
 
-/**
- * __useCreateRoomMutation__
- *
- * To run a mutation, you first call `useCreateRoomMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateRoomMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createRoomMutation, { data, loading, error }] = useCreateRoomMutation({
- *   variables: {
- *      type: // value for 'type'
- *      name: // value for 'name'
- *      members: // value for 'members'
- *   },
- * });
- */
-export function useCreateRoomMutation(baseOptions?: Apollo.MutationHookOptions<CreateRoomMutation, CreateRoomMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument, options);
-      }
-export type CreateRoomMutationHookResult = ReturnType<typeof useCreateRoomMutation>;
-export type CreateRoomMutationResult = Apollo.MutationResult<CreateRoomMutation>;
-export type CreateRoomMutationOptions = Apollo.BaseMutationOptions<CreateRoomMutation, CreateRoomMutationVariables>;
+export function useCreateRoomMutation() {
+  return Urql.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument);
+};
 export const LoginDocument = gql`
     mutation Login($loginInput: LoginInput!) {
   login(loginInput: $loginInput) {
@@ -431,32 +410,10 @@ export const LoginDocument = gql`
   }
 }
     ${UserResponseFragmentDoc}`;
-export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
 
-/**
- * __useLoginMutation__
- *
- * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLoginMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [loginMutation, { data, loading, error }] = useLoginMutation({
- *   variables: {
- *      loginInput: // value for 'loginInput'
- *   },
- * });
- */
-export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
-      }
-export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
-export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
-export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export function useLoginMutation() {
+  return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
 export const RegisterDocument = gql`
     mutation Register($registerInput: RegisterInput!) {
   register(registerInput: $registerInput) {
@@ -464,32 +421,10 @@ export const RegisterDocument = gql`
   }
 }
     ${UserResponseFragmentDoc}`;
-export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, RegisterMutationVariables>;
 
-/**
- * __useRegisterMutation__
- *
- * To run a mutation, you first call `useRegisterMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegisterMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [registerMutation, { data, loading, error }] = useRegisterMutation({
- *   variables: {
- *      registerInput: // value for 'registerInput'
- *   },
- * });
- */
-export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, options);
-      }
-export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
-export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
-export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export function useRegisterMutation() {
+  return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
 export const SendMessageDocument = gql`
     mutation SendMessage($text: String!, $roomId: Int!) {
   sendMessage(text: $text, roomId: $roomId) {
@@ -503,67 +438,23 @@ export const SendMessageDocument = gql`
   }
 }
     ${MessageFieldsFragmentDoc}`;
-export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation, SendMessageMutationVariables>;
 
-/**
- * __useSendMessageMutation__
- *
- * To run a mutation, you first call `useSendMessageMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSendMessageMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [sendMessageMutation, { data, loading, error }] = useSendMessageMutation({
- *   variables: {
- *      text: // value for 'text'
- *      roomId: // value for 'roomId'
- *   },
- * });
- */
-export function useSendMessageMutation(baseOptions?: Apollo.MutationHookOptions<SendMessageMutation, SendMessageMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, options);
-      }
-export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>;
-export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>;
-export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>;
+export function useSendMessageMutation() {
+  return Urql.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument);
+};
 export const TogglePrivacyDocument = gql`
     mutation TogglePrivacy {
   togglePrivacy
 }
     `;
-export type TogglePrivacyMutationFn = Apollo.MutationFunction<TogglePrivacyMutation, TogglePrivacyMutationVariables>;
 
-/**
- * __useTogglePrivacyMutation__
- *
- * To run a mutation, you first call `useTogglePrivacyMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTogglePrivacyMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [togglePrivacyMutation, { data, loading, error }] = useTogglePrivacyMutation({
- *   variables: {
- *   },
- * });
- */
-export function useTogglePrivacyMutation(baseOptions?: Apollo.MutationHookOptions<TogglePrivacyMutation, TogglePrivacyMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<TogglePrivacyMutation, TogglePrivacyMutationVariables>(TogglePrivacyDocument, options);
-      }
-export type TogglePrivacyMutationHookResult = ReturnType<typeof useTogglePrivacyMutation>;
-export type TogglePrivacyMutationResult = Apollo.MutationResult<TogglePrivacyMutation>;
-export type TogglePrivacyMutationOptions = Apollo.BaseMutationOptions<TogglePrivacyMutation, TogglePrivacyMutationVariables>;
+export function useTogglePrivacyMutation() {
+  return Urql.useMutation<TogglePrivacyMutation, TogglePrivacyMutationVariables>(TogglePrivacyDocument);
+};
 export const AllUsersDocument = gql`
     query AllUsers($limit: Int, $offset: Int) {
   allUsers(limit: $limit, offset: $offset) {
-    users {
+    nodes {
       ...UserField
     }
     hasMore
@@ -571,38 +462,13 @@ export const AllUsersDocument = gql`
 }
     ${UserFieldFragmentDoc}`;
 
-/**
- * __useAllUsersQuery__
- *
- * To run a query within a React component, call `useAllUsersQuery` and pass it any options that fit your needs.
- * When your component renders, `useAllUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAllUsersQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      offset: // value for 'offset'
- *   },
- * });
- */
-export function useAllUsersQuery(baseOptions?: Apollo.QueryHookOptions<AllUsersQuery, AllUsersQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AllUsersQuery, AllUsersQueryVariables>(AllUsersDocument, options);
-      }
-export function useAllUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AllUsersQuery, AllUsersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AllUsersQuery, AllUsersQueryVariables>(AllUsersDocument, options);
-        }
-export type AllUsersQueryHookResult = ReturnType<typeof useAllUsersQuery>;
-export type AllUsersLazyQueryHookResult = ReturnType<typeof useAllUsersLazyQuery>;
-export type AllUsersQueryResult = Apollo.QueryResult<AllUsersQuery, AllUsersQueryVariables>;
+export function useAllUsersQuery(options: Omit<Urql.UseQueryArgs<AllUsersQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<AllUsersQuery>({ query: AllUsersDocument, ...options });
+};
 export const GetMessagesDocument = gql`
     query GetMessages($roomId: Int!, $limit: Int!, $cursor: DateTime) {
   getMessages(roomId: $roomId, limit: $limit, cursor: $cursor) {
-    messages {
+    nodes {
       ...MessageFields
     }
     hasMore
@@ -610,35 +476,9 @@ export const GetMessagesDocument = gql`
 }
     ${MessageFieldsFragmentDoc}`;
 
-/**
- * __useGetMessagesQuery__
- *
- * To run a query within a React component, call `useGetMessagesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMessagesQuery({
- *   variables: {
- *      roomId: // value for 'roomId'
- *      limit: // value for 'limit'
- *      cursor: // value for 'cursor'
- *   },
- * });
- */
-export function useGetMessagesQuery(baseOptions: Apollo.QueryHookOptions<GetMessagesQuery, GetMessagesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMessagesQuery, GetMessagesQueryVariables>(GetMessagesDocument, options);
-      }
-export function useGetMessagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMessagesQuery, GetMessagesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMessagesQuery, GetMessagesQueryVariables>(GetMessagesDocument, options);
-        }
-export type GetMessagesQueryHookResult = ReturnType<typeof useGetMessagesQuery>;
-export type GetMessagesLazyQueryHookResult = ReturnType<typeof useGetMessagesLazyQuery>;
-export type GetMessagesQueryResult = Apollo.QueryResult<GetMessagesQuery, GetMessagesQueryVariables>;
+export function useGetMessagesQuery(options: Omit<Urql.UseQueryArgs<GetMessagesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetMessagesQuery>({ query: GetMessagesDocument, ...options });
+};
 export const GetMyRoomsDocument = gql`
     query GetMyRooms {
   getMyRooms {
@@ -647,32 +487,9 @@ export const GetMyRoomsDocument = gql`
 }
     ${RoomFieldsFragmentDoc}`;
 
-/**
- * __useGetMyRoomsQuery__
- *
- * To run a query within a React component, call `useGetMyRoomsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMyRoomsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMyRoomsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetMyRoomsQuery(baseOptions?: Apollo.QueryHookOptions<GetMyRoomsQuery, GetMyRoomsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMyRoomsQuery, GetMyRoomsQueryVariables>(GetMyRoomsDocument, options);
-      }
-export function useGetMyRoomsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMyRoomsQuery, GetMyRoomsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMyRoomsQuery, GetMyRoomsQueryVariables>(GetMyRoomsDocument, options);
-        }
-export type GetMyRoomsQueryHookResult = ReturnType<typeof useGetMyRoomsQuery>;
-export type GetMyRoomsLazyQueryHookResult = ReturnType<typeof useGetMyRoomsLazyQuery>;
-export type GetMyRoomsQueryResult = Apollo.QueryResult<GetMyRoomsQuery, GetMyRoomsQueryVariables>;
+export function useGetMyRoomsQuery(options: Omit<Urql.UseQueryArgs<GetMyRoomsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetMyRoomsQuery>({ query: GetMyRoomsDocument, ...options });
+};
 export const MeDocument = gql`
     query Me {
   me {
@@ -685,32 +502,9 @@ export const MeDocument = gql`
     ${UserFieldFragmentDoc}
 ${NotificationFieldsFragmentDoc}`;
 
-/**
- * __useMeQuery__
- *
- * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
- * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useMeQuery({
- *   variables: {
- *   },
- * });
- */
-export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-      }
-export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-        }
-export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
-export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
-export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
 export const SearchUserDocument = gql`
     query SearchUser($term: String!) {
   searchUser(term: $term) {
@@ -719,33 +513,9 @@ export const SearchUserDocument = gql`
 }
     ${UserFieldFragmentDoc}`;
 
-/**
- * __useSearchUserQuery__
- *
- * To run a query within a React component, call `useSearchUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useSearchUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSearchUserQuery({
- *   variables: {
- *      term: // value for 'term'
- *   },
- * });
- */
-export function useSearchUserQuery(baseOptions: Apollo.QueryHookOptions<SearchUserQuery, SearchUserQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SearchUserQuery, SearchUserQueryVariables>(SearchUserDocument, options);
-      }
-export function useSearchUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchUserQuery, SearchUserQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SearchUserQuery, SearchUserQueryVariables>(SearchUserDocument, options);
-        }
-export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>;
-export type SearchUserLazyQueryHookResult = ReturnType<typeof useSearchUserLazyQuery>;
-export type SearchUserQueryResult = Apollo.QueryResult<SearchUserQuery, SearchUserQueryVariables>;
+export function useSearchUserQuery(options: Omit<Urql.UseQueryArgs<SearchUserQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<SearchUserQuery>({ query: SearchUserDocument, ...options });
+};
 export const GetNewMessageDocument = gql`
     subscription GetNewMessage($roomId: Int!) {
   getNewMessage(roomId: $roomId) {
@@ -754,25 +524,6 @@ export const GetNewMessageDocument = gql`
 }
     ${MessageFieldsFragmentDoc}`;
 
-/**
- * __useGetNewMessageSubscription__
- *
- * To run a query within a React component, call `useGetNewMessageSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetNewMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetNewMessageSubscription({
- *   variables: {
- *      roomId: // value for 'roomId'
- *   },
- * });
- */
-export function useGetNewMessageSubscription(baseOptions: Apollo.SubscriptionHookOptions<GetNewMessageSubscription, GetNewMessageSubscriptionVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useSubscription<GetNewMessageSubscription, GetNewMessageSubscriptionVariables>(GetNewMessageDocument, options);
-      }
-export type GetNewMessageSubscriptionHookResult = ReturnType<typeof useGetNewMessageSubscription>;
-export type GetNewMessageSubscriptionResult = Apollo.SubscriptionResult<GetNewMessageSubscription>;
+export function useGetNewMessageSubscription<TData = GetNewMessageSubscription>(options: Omit<Urql.UseSubscriptionArgs<GetNewMessageSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<GetNewMessageSubscription, TData>) {
+  return Urql.useSubscription<GetNewMessageSubscription, TData, GetNewMessageSubscriptionVariables>({ query: GetNewMessageDocument, ...options }, handler);
+};

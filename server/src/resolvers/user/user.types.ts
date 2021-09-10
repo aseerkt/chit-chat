@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from 'type-graphql';
-import { User } from '../entities/User';
-import { Errors } from './globalTypes';
+import { User } from '../../entities/User';
+import { Errors } from '../../types/global.types';
 
 @ObjectType()
 export class UserResponse extends Errors {
@@ -29,7 +29,7 @@ export class RegisterInput extends LoginInput {
 @ObjectType()
 export class PaginatedUsers {
   @Field(() => [User])
-  users: User[];
+  nodes: User[];
   @Field()
   hasMore: boolean;
 }

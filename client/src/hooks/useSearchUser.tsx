@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { useSearchUserLazyQuery } from '../generated/graphql';
+import { useSearchUserQuery } from '../generated/graphql';
 import useDebounce from './useDebounce';
 
 function useSearchUser() {
   const [term, setTerm] = useState('');
-  const [searchUser, { data, loading, updateQuery }] = useSearchUserLazyQuery();
+  const [{ data, fetching }, searchUser] = useSearchUserQuery({
+    pause: true,
+  });
   const debouncedSearchTerm = useDebounce(term, 500);
 
   useEffect(
@@ -22,7 +24,6 @@ function useSearchUser() {
 
   const clearSearch = () => {
     setTerm('');
-    updateQuery && updateQuery(() => ({ searchUser: [] }));
   };
 
   return {
@@ -30,7 +31,7 @@ function useSearchUser() {
     setTerm,
     clearSearch,
     userList: data?.searchUser || [],
-    searching: loading,
+    searching: fetching,
   };
 }
 

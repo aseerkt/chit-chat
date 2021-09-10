@@ -1,7 +1,7 @@
 import { AuthenticationError } from 'apollo-server-express';
 import { MiddlewareFn } from 'type-graphql/dist/interfaces/Middleware';
 import { MemberRole } from '../entities/Member';
-import { MyContext } from '../types/globalTypes';
+import { MyContext } from '../types/global.types';
 import { getPayload } from '../utils/jwtHelper';
 
 type ProtectMiddleware = (params: {

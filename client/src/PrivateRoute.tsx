@@ -17,8 +17,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   component: Component,
   ...rest
 }) => {
-  const { data, loading } = useMeQuery();
-  if (loading) {
+  const [{ data, fetching }] = useMeQuery();
+  if (fetching) {
     return <CSpinner />;
   }
   return (

@@ -26,7 +26,7 @@ async function startServer() {
   app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
 
   const schema = await buildSchema({
-    resolvers: [path.join(__dirname, './resolvers/*.{j,t}s')],
+    resolvers: [path.join(__dirname, './resolvers/**/*.resolver.{j,t}s')],
   });
 
   const apolloServer = new ApolloServer({

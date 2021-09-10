@@ -1,17 +1,17 @@
 import ReactDOM from 'react-dom';
-import { ApolloProvider } from '@apollo/client';
-import createApolloClient from './config/apolloClient';
-import App from './App';
+import { Provider } from 'urql';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
+import App from './App';
 import theme from './theme';
+import client from './urql/urqlClient';
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-    <ApolloProvider client={createApolloClient().apolloClient}>
+    <Provider value={client}>
       <App />
-    </ApolloProvider>
+    </Provider>
   </ChakraProvider>,
   document.getElementById('root')
 );

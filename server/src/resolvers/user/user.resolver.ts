@@ -9,18 +9,18 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { getRepository, Not } from 'typeorm';
-import { Notification } from '../entities/Notification';
-import { User } from '../entities/User';
-import { protect } from '../middlewares/permissions';
-import { MyContext } from '../types/globalTypes';
+import { Notification } from '../../entities/Notification';
+import { User } from '../../entities/User';
+import { protect } from '../../middlewares/permissions';
+import { MyContext } from '../../types/global.types';
 import {
   LoginInput,
   PaginatedUsers,
   RegisterInput,
   UserResponse,
-} from '../types/UserTypes';
-import { setToken } from '../utils/jwtHelper';
-import validateEntity from '../utils/validationHelpers';
+} from './user.types';
+import { setToken } from '../../utils/jwtHelper';
+import validateEntity from '../../utils/validationHelpers';
 
 @Resolver(User)
 export class UserResolver {
@@ -48,7 +48,7 @@ export class UserResolver {
       skip: offset || 0,
     });
     return {
-      users: users.slice(0, limit),
+      nodes: users.slice(0, limit),
       hasMore: users.length === limit + 1,
     };
   }

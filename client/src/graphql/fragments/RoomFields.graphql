@@ -3,6 +3,8 @@ fragment RoomFields on Room {
   name
   type
   members {
+    roomId
+    userId
     role
     user {
       ...UserField

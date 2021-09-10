@@ -32,6 +32,7 @@ export class Member extends BaseEntity {
   @PrimaryColumn()
   userId: number;
 
+  @Field()
   @PrimaryColumn()
   roomId: number;
 

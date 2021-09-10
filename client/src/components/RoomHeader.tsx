@@ -1,7 +1,7 @@
-import { Flex, IconButton, Text, Wrap, WrapItem } from '@chakra-ui/react';
-import { FaInfoCircle } from 'react-icons/fa';
+import { Flex, Text, Wrap, WrapItem } from '@chakra-ui/react';
 import { useCurrentRoomCtx } from '../context/RoomContext';
 import { RoomType } from '../generated/graphql';
+import MemberModal from './MemberModal';
 
 function RoomHeader() {
   const { room } = useCurrentRoomCtx();
@@ -18,7 +18,7 @@ function RoomHeader() {
       </Text>
       <Wrap>
         <WrapItem>
-          <IconButton aria-label='room info' icon={<FaInfoCircle />} isRound />
+          <MemberModal />
         </WrapItem>
       </Wrap>
     </Flex>

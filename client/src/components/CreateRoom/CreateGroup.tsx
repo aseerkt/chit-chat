@@ -31,13 +31,13 @@ import { CreateRoomProps } from './CreateRoomModal';
 function CreateGroup({ onClose }: CreateRoomProps) {
   const history = useHistory();
   const [name, setName] = useState('');
-  const { data: meData } = useMeQuery();
+  const [{ data: meData }] = useMeQuery();
   const [memberList, setMemberList] = useState([meData?.me!]);
   const { term, setTerm, userList } = useSearchUser();
-  const { data: suggestedData, loading: suggesting } = useAllUsersQuery({
+  const [{ data: suggestedData, fetching: suggesting }] = useAllUsersQuery({
     variables: { limit: 5 },
   });
-  const [createGroup, { loading }] = useCreateRoomMutation();
+  const [{ fetching, data }, createGroup] = useCreateRoomMutation();
 
   const addMemberToList = (u: User) => () => {
     if (u.id === meData?.me.id) return;
@@ -58,20 +58,15 @@ function CreateGroup({ onClose }: CreateRoomProps) {
     if (!name || memberList.length < 1) return;
     try {
       createGroup({
-        variables: {
-          name,
-          members: memberList.map((m) => m.id),
-          type: RoomType.Group,
-        },
-        update: (cache, { data }) => {
-          if (data) {
-            const { room } = data.createRoom;
-            cache.evict({ fieldName: 'getMyRooms' });
-            history.push(`/room/${room?.id}`);
-            onClose();
-          }
-        },
+        name,
+        members: memberList.map((m) => m.id),
+        type: RoomType.Group,
       });
+      if (data) {
+        const { room } = data.createRoom;
+        history.push(`/room/${room?.id}`);
+        onClose();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -79,7 +74,7 @@ function CreateGroup({ onClose }: CreateRoomProps) {
 
   return (
     <form onSubmit={onSubmit}>
-      <CreateRoomLoader creating={loading} />
+      <CreateRoomLoader creating={fetching} />
       <FormControl mb='2' isRequired>
         <FormLabel>Name</FormLabel>
         <Input
@@ -153,7 +148,7 @@ function CreateGroup({ onClose }: CreateRoomProps) {
         </Text>
         {suggesting && <CSpinner />}
         <Wrap>
-          {suggestedData?.allUsers.users.map((u) => (
+          {suggestedData?.allUsers.nodes.map((u) => (
             <WrapItem key={`group_user_suggest_${u.id}`}>
               <Button size='xs' onClick={addMemberToList(u)}>
                 {u.username}
