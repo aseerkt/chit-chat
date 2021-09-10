@@ -12,34 +12,16 @@ import {
   WrapItem,
 } from '@chakra-ui/react';
 import { FaCog } from 'react-icons/fa';
-import {
-  MeDocument,
-  MeQuery,
-  useMeQuery,
-  useTogglePrivacyMutation,
-} from '../generated/graphql';
+import { useMeQuery, useTogglePrivacyMutation } from '../generated/graphql';
 import CreateRoomModal from './CreateRoom/CreateRoomModal';
 
 function UserHeader() {
-  const { data: meData } = useMeQuery();
-  const [togglePrivacy, { loading }] = useTogglePrivacyMutation();
+  const [{ data: meData }] = useMeQuery();
+  const [{ fetching }, togglePrivacy] = useTogglePrivacyMutation();
 
-  const changePrivate = () =>
-    togglePrivacy({
-      update: (cache, { data }) => {
-        if (data?.togglePrivacy) {
-          cache.writeQuery<MeQuery>({
-            query: MeDocument,
-            data: {
-              me: {
-                ...meData!.me!,
-                private: !meData?.me.private,
-              },
-            },
-          });
-        }
-      },
-    });
+  const changePrivate = async () => {
+    await togglePrivacy();
+  };
 
   return (
     <Flex
@@ -70,7 +52,7 @@ function UserHeader() {
               <MenuItem closeOnSelect={false}>
                 <Switch
                   isChecked={meData?.me?.private || false}
-                  disabled={loading}
+                  disabled={fetching}
                   onChange={changePrivate}
                   id='email-alerts'
                 />

@@ -13,7 +13,7 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import {
@@ -31,13 +31,22 @@ import { CreateRoomProps } from './CreateRoomModal';
 function CreateGroup({ onClose }: CreateRoomProps) {
   const history = useHistory();
   const [name, setName] = useState('');
-  const { data: meData } = useMeQuery();
+  const [{ data: meData }] = useMeQuery();
   const [memberList, setMemberList] = useState([meData?.me!]);
   const { term, setTerm, userList } = useSearchUser();
-  const { data: suggestedData, loading: suggesting } = useAllUsersQuery({
+  const [{ data: suggestedData, fetching: suggesting }] = useAllUsersQuery({
     variables: { limit: 5 },
   });
-  const [createGroup, { loading }] = useCreateRoomMutation();
+  const [{ fetching, data }, createGroup] = useCreateRoomMutation();
+
+  useEffect(() => {
+    if (data?.createRoom.room) {
+      const { room } = data.createRoom;
+      history.push(`/room/${room?.id}`);
+      onClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const addMemberToList = (u: User) => () => {
     if (u.id === meData?.me.id) return;
@@ -53,24 +62,14 @@ function CreateGroup({ onClose }: CreateRoomProps) {
     setMemberList((prevList) => prevList.filter((lu) => lu.id !== uid));
   };
 
-  const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!name || memberList.length < 1) return;
     try {
-      createGroup({
-        variables: {
-          name,
-          members: memberList.map((m) => m.id),
-          type: RoomType.Group,
-        },
-        update: (cache, { data }) => {
-          if (data) {
-            const { room } = data.createRoom;
-            cache.evict({ fieldName: 'getMyRooms' });
-            history.push(`/room/${room?.id}`);
-            onClose();
-          }
-        },
+      await createGroup({
+        name,
+        members: memberList.map((m) => m.id),
+        type: RoomType.Group,
       });
     } catch (err) {
       console.error(err);
@@ -79,7 +78,7 @@ function CreateGroup({ onClose }: CreateRoomProps) {
 
   return (
     <form onSubmit={onSubmit}>
-      <CreateRoomLoader creating={loading} />
+      <CreateRoomLoader creating={fetching} />
       <FormControl mb='2' isRequired>
         <FormLabel>Name</FormLabel>
         <Input
@@ -153,7 +152,7 @@ function CreateGroup({ onClose }: CreateRoomProps) {
         </Text>
         {suggesting && <CSpinner />}
         <Wrap>
-          {suggestedData?.allUsers.users.map((u) => (
+          {suggestedData?.allUsers.nodes.map((u) => (
             <WrapItem key={`group_user_suggest_${u.id}`}>
               <Button size='xs' onClick={addMemberToList(u)}>
                 {u.username}

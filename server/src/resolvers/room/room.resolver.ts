@@ -12,12 +12,12 @@ import {
   Int,
 } from 'type-graphql';
 import { getConnection, getRepository } from 'typeorm';
-import { Invite } from '../entities/Invite';
-import { Member, MemberRole } from '../entities/Member';
-import { Room, RoomType } from '../entities/Room';
+import { Invite } from '../../entities/Invite';
+import { Member, MemberRole } from '../../entities/Member';
+import { Room, RoomType } from '../../entities/Room';
 
-import { protect } from '../middlewares/permissions';
-import { Errors, MyContext } from '../types/globalTypes';
+import { protect } from '../../middlewares/permissions';
+import { Errors, MyContext } from '../../types/global.types';
 
 @ObjectType()
 export class CreateRoomResponse extends Errors {
@@ -109,15 +109,16 @@ export class RoomResolver {
             DISTINCT ON (r.id)
             *
             FROM rooms r
-            WHERE r.id IN (
+            WHERE r.type = 'DM' AND r.id IN (
               SELECT "roomId"
               FROM members
               GROUP BY "roomId"
               HAVING array_agg("userId" order by "userId") = array[$1::integer, $2::integer]
               )
               `,
-        members
+        [...members].sort((m1, m2) => m1 - m2)
       );
+      console.log(results);
 
       if (results.length !== 0) {
         return { room: results[0] };

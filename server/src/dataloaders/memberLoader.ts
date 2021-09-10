@@ -7,8 +7,6 @@ async function batchMembers(roomIds: readonly number[]) {
     where: { roomId: In(roomIds as number[]) },
   });
 
-  console.log(members);
-
   const membersToIds: Record<number, Member[]> = {};
 
   members.forEach((m) => {

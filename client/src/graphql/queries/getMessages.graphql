@@ -1,6 +1,6 @@
 query GetMessages($roomId: Int!, $limit: Int!, $cursor: DateTime) {
   getMessages(roomId: $roomId, limit: $limit, cursor: $cursor) {
-    messages {
+    nodes {
       ...MessageFields
     }
     hasMore

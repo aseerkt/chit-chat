@@ -1,7 +1,7 @@
 import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
-import { Member } from '../entities/Member';
-import { User } from '../entities/User';
-import { MyContext } from '../types/globalTypes';
+import { Member } from '../../entities/Member';
+import { User } from '../../entities/User';
+import { MyContext } from '../../types/global.types';
 
 @Resolver(Member)
 export class MemberResolver {

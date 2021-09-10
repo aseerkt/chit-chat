@@ -1,13 +1,12 @@
-import { NetworkStatus } from '@apollo/client';
 import { Flex, IconButton } from '@chakra-ui/react';
-import { Fragment, useCallback, useEffect } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { FaPlusSquare } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { useScrollCtx } from '../context/MessageScrollCtx';
 import {
-  GetNewMessageDocument,
-  GetNewMessageSubscription,
+  GetMessagesQueryVariables,
   useGetMessagesQuery,
+  useGetNewMessageSubscription,
 } from '../generated/graphql';
 import CSpinner from '../shared/CSpinner';
 import { isSameDay, isYesterday } from '../utils/dateUtils';
@@ -16,62 +15,27 @@ import MessageItem from './MessageItem';
 
 function RoomMessages() {
   const params = useParams<{ roomId: string }>();
-  const {
-    data,
-    variables: getMessagesVariables,
-    networkStatus,
-    fetchMore,
-    subscribeToMore,
-  } = useGetMessagesQuery({
-    variables: { roomId: parseInt(params.roomId), limit: 8 },
-    skip: typeof params.roomId === 'undefined' || params.roomId === '@me',
-    notifyOnNetworkStatusChange: true,
+  const [variables, setVariables] = useState<GetMessagesQueryVariables>({
+    roomId: parseInt(params.roomId),
+    limit: 20,
+    cursor: null,
+  });
+  const [{ data, fetching }] = useGetMessagesQuery({
+    variables,
+    pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
   });
 
   const { scrollToBottom, ScrollRefComponent } = useScrollCtx();
 
-  const fetchMoreMessages = useCallback(() => {
-    const oldMsgDate = data?.getMessages.messages.reduce((prev, curr) => {
-      return prev < curr.createdAt ? prev : curr.createdAt;
-    }, new Date());
-    fetchMore({
-      variables: {
-        cursor: oldMsgDate,
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.roomId, networkStatus]);
-
-  const subscribeForMessages = useCallback(() => {
-    subscribeToMore<GetNewMessageSubscription>({
-      document: GetNewMessageDocument,
-      variables: getMessagesVariables,
-      updateQuery: (prev, { subscriptionData }) => {
-        const newMessage = subscriptionData.data?.getNewMessage;
-        if (!newMessage) return prev;
-        return Object.assign({}, prev, {
-          getMessages: {
-            hasMore: 'sub',
-            messages: [newMessage],
-          },
-        });
-      },
-    });
-    scrollToBottom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.roomId]);
+  useGetNewMessageSubscription({
+    variables: { roomId: parseInt(params.roomId) },
+    pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
+  });
 
   useEffect(() => {
     scrollToBottom();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [networkStatus === NetworkStatus.loading]);
-
-  useEffect(() => {
-    subscribeForMessages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.roomId]);
-
-  if (networkStatus === NetworkStatus.loading) return <CSpinner />;
+  }, [fetching]);
 
   return (
     <Flex direction='column' flex='1' justify='flex-end' overflowY='hidden'>
@@ -85,7 +49,7 @@ function RoomMessages() {
         }}
       >
         <ScrollRefComponent />
-        {data?.getMessages.messages.map((msg, index, msgArr) => {
+        {data?.getMessages.nodes.map((msg, index, msgArr) => {
           let separatorText: string | null = null;
           if (index !== msgArr.length - 1) {
             let currentMsgDate = msg.createdAt;
@@ -118,11 +82,18 @@ function RoomMessages() {
               isRound
               size='md'
               colorScheme='green'
-              onClick={fetchMoreMessages}
+              onClick={() => {
+                setVariables((prev) => ({
+                  ...prev,
+                  cursor:
+                    data.getMessages.nodes[data.getMessages.nodes.length - 1]
+                      .createdAt,
+                }));
+              }}
             />
           </Flex>
         )}
-        {networkStatus === NetworkStatus.fetchMore && <CSpinner />}
+        {fetching && <CSpinner />}
       </Flex>
     </Flex>
   );

@@ -8,9 +8,9 @@ import CSpinner from './shared/CSpinner';
 import Home from './pages/Home';
 
 function App() {
-  const { data, loading } = useMeQuery();
+  const [{ data, fetching }] = useMeQuery();
 
-  if (loading) return <CSpinner />;
+  if (fetching) return <CSpinner />;
 
   return (
     <BrowserRouter>

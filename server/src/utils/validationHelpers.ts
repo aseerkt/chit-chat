@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { Errors } from '../types/globalTypes';
+import { Errors } from '../types/global.types';
 
 export default async function validateEntity(obj: Object): Promise<Errors> {
   const validationErrors = await validate(obj);

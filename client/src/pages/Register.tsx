@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Link as RouterLink, useHistory } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -11,18 +9,21 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { MeDocument, useRegisterMutation } from '../generated/graphql';
-import { JWT_LOCAL_NAME } from '../constants';
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { useRegisterMutation } from '../generated/graphql';
+import usePublicRedirect from '../hooks/usePublicRedirect';
 
 function Register() {
   const toast = useToast();
-  const history = useHistory();
-  const [register, { loading }] = useRegisterMutation();
+  const [{ fetching }, register] = useRegisterMutation();
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
     password: '',
   });
+
+  usePublicRedirect();
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -31,37 +32,32 @@ function Register() {
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     try {
-      await register({
-        variables: { registerInput: formData },
-        update: (cache, { data }) => {
-          if (data) {
-            const { errors, user, token } = data.register;
-            if (user && token) {
-              cache.writeQuery({ query: MeDocument, data: { me: user } });
-              localStorage.setItem(JWT_LOCAL_NAME, token);
-              toast({
-                id: 'Register',
-                title: 'Register success',
-                description: `Welcome ${user.fullName}`,
-                duration: 2000,
-                isClosable: true,
-                status: 'success',
-              });
-              history.push('/');
-            }
-            if (errors)
-              errors.forEach(({ field, message }) =>
-                toast({
-                  id: field,
-                  title: field,
-                  description: message,
-                  duration: 1000,
-                  status: 'error',
-                })
-              );
-          }
-        },
+      const res = await register({
+        registerInput: formData,
       });
+      if (res?.data) {
+        const { errors, user, token } = res?.data.register;
+        if (user && token) {
+          toast({
+            id: 'Register',
+            title: 'Register success',
+            description: `Welcome ${user.fullName}`,
+            duration: 2000,
+            isClosable: true,
+            status: 'success',
+          });
+        }
+        if (errors)
+          errors.forEach(({ field, message }) =>
+            toast({
+              id: field,
+              title: field,
+              description: message,
+              duration: 1000,
+              status: 'error',
+            })
+          );
+      }
     } catch (err) {}
   };
 
@@ -103,7 +99,7 @@ function Register() {
           />
         </FormControl>
         <Button
-          isLoading={loading}
+          isLoading={fetching}
           variant='solid'
           colorScheme='teal'
           my='5'

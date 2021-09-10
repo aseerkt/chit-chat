@@ -11,7 +11,7 @@ const RoomCtx = createContext<RoomCtxType>(null as any);
 
 function CurrentRoomProvider({ children }: { children: React.ReactNode }) {
   const params: any = useParams();
-  const { loading, data } = useGetMyRoomsQuery();
+  const [{ fetching, data }] = useGetMyRoomsQuery();
 
   const [room, setRoom] = useState<Room | undefined>();
 
@@ -23,7 +23,9 @@ function CurrentRoomProvider({ children }: { children: React.ReactNode }) {
   }, [params.roomId, data]);
 
   return (
-    <RoomCtx.Provider value={{ loading, room }}>{children}</RoomCtx.Provider>
+    <RoomCtx.Provider value={{ loading: fetching, room }}>
+      {children}
+    </RoomCtx.Provider>
   );
 }
 

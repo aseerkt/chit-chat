@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Link as RouterLink, useHistory } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -11,17 +9,20 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { MeDocument, useLoginMutation } from '../generated/graphql';
-import { JWT_LOCAL_NAME } from '../constants';
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { useLoginMutation } from '../generated/graphql';
+import usePublicRedirect from '../hooks/usePublicRedirect';
 
 function Login() {
   const toast = useToast();
-  const history = useHistory();
-  const [login, { loading }] = useLoginMutation();
+  const [{ fetching }, login] = useLoginMutation();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
+
+  usePublicRedirect();
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -30,37 +31,32 @@ function Login() {
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     try {
-      await login({
-        variables: { loginInput: formData },
-        update: (cache, { data }) => {
-          if (data) {
-            const { errors, user, token } = data.login;
-            if (user && token) {
-              cache.writeQuery({ query: MeDocument, data: { me: user } });
-              localStorage.setItem(JWT_LOCAL_NAME, token);
-              toast({
-                id: 'Login',
-                title: 'Login success',
-                description: `Welcome ${user.fullName}`,
-                duration: 2000,
-                isClosable: true,
-                status: 'success',
-              });
-              history.push('/');
-            }
-            if (errors)
-              errors.forEach(({ field, message }) =>
-                toast({
-                  id: field,
-                  title: field,
-                  description: message,
-                  duration: 1000,
-                  status: 'error',
-                })
-              );
-          }
-        },
+      const res = await login({
+        loginInput: formData,
       });
+      if (res?.data) {
+        const { errors, user, token } = res.data.login;
+        if (user && token) {
+          toast({
+            id: 'Login',
+            title: 'Login success',
+            description: `Welcome ${user.fullName}`,
+            duration: 2000,
+            isClosable: true,
+            status: 'success',
+          });
+        }
+        if (errors)
+          errors.forEach(({ field, message }) =>
+            toast({
+              id: field,
+              title: field,
+              description: message,
+              duration: 1000,
+              status: 'error',
+            })
+          );
+      }
     } catch (err) {
       console.error(err);
     }
@@ -96,7 +92,7 @@ function Login() {
           />
         </FormControl>
         <Button
-          isLoading={loading}
+          isLoading={fetching}
           variant='solid'
           colorScheme='teal'
           my='5'
