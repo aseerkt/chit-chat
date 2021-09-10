@@ -4,7 +4,7 @@ import reportWebVitals from './reportWebVitals';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import App from './App';
 import theme from './theme';
-import client from './urql/urqlClient';
+import client from './urql/client';
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>

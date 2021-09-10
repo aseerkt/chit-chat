@@ -116,7 +116,7 @@ export class RoomResolver {
               HAVING array_agg("userId" order by "userId") = array[$1::integer, $2::integer]
               )
               `,
-        members.sort((m1, m2) => m1 - m2)
+        [...members].sort((m1, m2) => m1 - m2)
       );
       console.log(results);
 

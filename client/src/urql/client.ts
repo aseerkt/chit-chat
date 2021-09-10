@@ -4,9 +4,10 @@ import {
   fetchExchange,
   subscriptionExchange,
 } from 'urql';
+import { devtoolsExchange } from '@urql/devtools';
 import { createClient as createWSClient } from 'graphql-ws';
 import { API_URL, JWT_LOCAL_NAME } from '../constants';
-import urqlCache from './urqlCache';
+import urqlCache from './cache';
 
 const wsClient = createWSClient({
   url: API_URL.replace('http', 'ws'),
@@ -24,6 +25,7 @@ const client = createClient({
     };
   },
   exchanges: [
+    devtoolsExchange,
     dedupExchange,
     urqlCache,
     // urqlAuth,

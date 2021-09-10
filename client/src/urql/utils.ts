@@ -1,13 +1,5 @@
 import { stringifyVariables } from '@urql/core';
-import { Cache, Resolver } from '@urql/exchange-graphcache';
-
-export function invalidateFields(cache: Cache, fieldName: string) {
-  const allFields = cache.inspectFields('Query');
-  const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
-  fieldInfos.forEach((fi) => {
-    cache.invalidate('Query', fieldName, fi.arguments || {});
-  });
-}
+import { Resolver } from '@urql/exchange-graphcache';
 
 // https://github.com/benawad/lireddit/blob/master/web/src/utils/createUrqlClient.ts
 export const customPagination = (
@@ -25,14 +17,15 @@ export const customPagination = (
 
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
     const isItInTheCache = cache.resolve(
-      cache.resolve(entityKey, fieldKey) as string,
+      cache.resolveFieldByKey(entityKey, fieldKey) as string,
       'nodes'
     );
+    console.log(isItInTheCache);
     info.partial = !isItInTheCache;
     let hasMore = true;
     const results: string[] = [];
     fieldInfos.forEach((fi) => {
-      const key = cache.resolve(entityKey, fi.fieldKey) as string;
+      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
       const data = cache.resolve(key, 'nodes') as string[];
       const _hasMore = cache.resolve(key, 'hasMore');
       if (!_hasMore) {

@@ -9,15 +9,15 @@ function AddMessage() {
   const params: any = useParams();
   const { room } = useCurrentRoomCtx();
   const { scrollToBottom } = useScrollCtx();
-  const [{ fetching, data }, sendMsg] = useSendMessageMutation();
+  const [{ fetching }, sendMsg] = useSendMessageMutation();
   const [text, setText] = useState('');
 
   const sendMessage: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     try {
-      await sendMsg({ roomId: parseInt(params.roomId), text });
-      if (data?.sendMessage.message) {
+      const res = await sendMsg({ roomId: parseInt(params.roomId), text });
+      if (res?.data?.sendMessage?.message) {
         setText('');
         scrollToBottom();
       }

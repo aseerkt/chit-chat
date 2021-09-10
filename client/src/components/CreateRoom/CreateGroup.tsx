@@ -13,7 +13,7 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import {
@@ -39,6 +39,15 @@ function CreateGroup({ onClose }: CreateRoomProps) {
   });
   const [{ fetching, data }, createGroup] = useCreateRoomMutation();
 
+  useEffect(() => {
+    if (data?.createRoom.room) {
+      const { room } = data.createRoom;
+      history.push(`/room/${room?.id}`);
+      onClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   const addMemberToList = (u: User) => () => {
     if (u.id === meData?.me.id) return;
     setMemberList((prevList) =>
@@ -53,20 +62,15 @@ function CreateGroup({ onClose }: CreateRoomProps) {
     setMemberList((prevList) => prevList.filter((lu) => lu.id !== uid));
   };
 
-  const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!name || memberList.length < 1) return;
     try {
-      createGroup({
+      await createGroup({
         name,
         members: memberList.map((m) => m.id),
         type: RoomType.Group,
       });
-      if (data) {
-        const { room } = data.createRoom;
-        history.push(`/room/${room?.id}`);
-        onClose();
-      }
     } catch (err) {
       console.error(err);
     }

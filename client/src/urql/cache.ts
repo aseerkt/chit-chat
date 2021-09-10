@@ -11,13 +11,14 @@ import {
   MeDocument,
   User,
   LoginMutation,
+  TogglePrivacyMutation,
 } from '../generated/graphql';
-import { customPagination, invalidateFields } from './urqlUtils';
+import { customPagination } from './utils';
 
 export default cacheExchange({
   keys: {
     Member: (data) => `${data.userId}:${data.roomId}`,
-    PaginatedUser: () => null,
+    PaginatedUsers: () => null,
     PaginatedMessages: () => null,
   },
   resolvers: {
@@ -68,7 +69,19 @@ export default cacheExchange({
         localStorage.setItem(JWT_LOCAL_NAME, token);
       },
       createRoom: (_result, _args, cache) => {
-        invalidateFields(cache, 'getMyRooms');
+        const allFields = cache.inspectFields('Query');
+        const fieldInfos = allFields.filter(
+          (info) => info.fieldName === 'getMyRooms'
+        );
+        fieldInfos.forEach((fi) => {
+          cache.invalidate('Query', fi.fieldKey);
+        });
+      },
+      togglePrivacy: (result: TogglePrivacyMutation, _args, cache) => {
+        if (!result.togglePrivacy) return;
+        cache.updateQuery<MeQuery>({ query: MeDocument }, (data) => ({
+          me: { ...data!.me, private: !data!.me.private } as User,
+        }));
       },
     },
   },

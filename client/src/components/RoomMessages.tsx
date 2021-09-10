@@ -1,5 +1,5 @@
 import { Flex, IconButton } from '@chakra-ui/react';
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { FaPlusSquare } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { useScrollCtx } from '../context/MessageScrollCtx';
@@ -20,22 +20,11 @@ function RoomMessages() {
     limit: 20,
   });
   const [{ data, fetching }] = useGetMessagesQuery({
-    variables: { roomId: parseInt(params.roomId), limit: 20 },
+    variables,
     pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
   });
 
   const { scrollToBottom, ScrollRefComponent } = useScrollCtx();
-
-  const fetchMoreMessages = useCallback(() => {
-    const oldMsgDate = data?.getMessages.nodes.reduce((prev, curr) => {
-      return prev < curr.createdAt ? prev : curr.createdAt;
-    }, new Date());
-    setVariables({
-      ...variables,
-      cursor: oldMsgDate,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.roomId, fetching]);
 
   useGetNewMessageSubscription({
     variables: { roomId: parseInt(params.roomId) },
@@ -92,7 +81,14 @@ function RoomMessages() {
               isRound
               size='md'
               colorScheme='green'
-              onClick={fetchMoreMessages}
+              onClick={() => {
+                setVariables((prev) => ({
+                  ...prev,
+                  cursor:
+                    data.getMessages.nodes[data.getMessages.nodes.length - 1]
+                      .createdAt,
+                }));
+              }}
             />
           </Flex>
         )}
