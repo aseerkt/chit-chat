@@ -18,6 +18,7 @@ function RoomMessages() {
   const [variables, setVariables] = useState<GetMessagesQueryVariables>({
     roomId: parseInt(params.roomId),
     limit: 20,
+    cursor: null,
   });
   const [{ data, fetching }] = useGetMessagesQuery({
     variables,
