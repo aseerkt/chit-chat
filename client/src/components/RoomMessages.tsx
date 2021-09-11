@@ -42,14 +42,25 @@ function RoomMessages() {
   }, [params.roomId]);
 
   return (
-    <Flex direction='column' flex='1' justify='flex-end' overflowY='hidden'>
+    <Flex direction='column' flex='1' overflowY='hidden'>
       <Flex
         mt='auto'
         direction='column-reverse'
-        minH='min-content'
+        h='full'
         overflowY='auto'
         onScroll={(e) => {
-          // console.log(e.currentTarget.scrollTop);
+          const { scrollHeight, clientHeight, scrollTop } = e.currentTarget;
+          if (
+            data?.getMessages.hasMore &&
+            scrollHeight - 5 < clientHeight - scrollTop
+          ) {
+            setVariables((prev) => ({
+              ...prev,
+              cursor:
+                data.getMessages.nodes[data.getMessages.nodes.length - 1]
+                  .createdAt,
+            }));
+          }
         }}
       >
         <ScrollRefComponent />
@@ -78,25 +89,6 @@ function RoomMessages() {
             </Fragment>
           );
         })}
-        {data?.getMessages?.hasMore && (
-          <Flex justify='center' my='3'>
-            <IconButton
-              aria-label='fetch more button'
-              icon={<FaPlusSquare />}
-              isRound
-              size='md'
-              colorScheme='green'
-              onClick={() => {
-                setVariables((prev) => ({
-                  ...prev,
-                  cursor:
-                    data.getMessages.nodes[data.getMessages.nodes.length - 1]
-                      .createdAt,
-                }));
-              }}
-            />
-          </Flex>
-        )}
         {fetching && <CSpinner />}
       </Flex>
     </Flex>
