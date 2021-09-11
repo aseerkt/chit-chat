@@ -1,18 +1,18 @@
+import { Avatar } from '@chakra-ui/avatar';
 import { IconButton } from '@chakra-ui/button';
 import { useDisclosure } from '@chakra-ui/hooks';
-import { Flex, Text } from '@chakra-ui/layout';
+import { Badge, Divider, List, ListItem, Text } from '@chakra-ui/layout';
 import {
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/modal';
-import { FaInfoCircle, FaLock } from 'react-icons/fa';
+import { FaInfoCircle } from 'react-icons/fa';
 import { useCurrentRoomCtx } from '../context/RoomContext';
-import { RoomType } from '../generated/graphql';
+import { MemberRole, RoomType } from '../generated/graphql';
 
 function MemberModal() {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -29,9 +29,7 @@ function MemberModal() {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            {room?.type === RoomType.Dm
-              ? `@${room?.name}`
-              : `#${room?.name} members`}
+            {`${room?.type === RoomType.Dm ? '@' : '#'}${room?.name}`}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -43,21 +41,38 @@ function MemberModal() {
                 year: 'numeric',
               })}
             </Text>
-            {room?.members.map((m) => (
-              <Flex key={`member_${room.id}_${m.userId}`}>
-                <Text>{m.user.username}</Text>
-                {m.user.private && <FaLock />}
-                <Text>{m.role}</Text>
-              </Flex>
-            ))}
-          </ModalBody>
-
-          <ModalFooter fontSize='xs'>
-            <FaLock />*
-            <Text size='xs' ml='2'>
-              Private Account
+            <Divider />
+            <Text fontWeight='bold' fontSize='lg' my='4'>
+              Members
             </Text>
-          </ModalFooter>
+            <List align='center'>
+              {room?.members.map((m) => (
+                <ListItem
+                  d='flex'
+                  my='2'
+                  alignItems='center'
+                  key={`member_${room.id}_${m.userId}`}
+                >
+                  <Avatar size='sm' alt={m.user.username} />
+                  <Text fontWeight='bold' mx='2'>
+                    {m.user.username}
+                  </Text>
+                  <Badge
+                    ml='auto'
+                    colorScheme={
+                      m.role === MemberRole.Admin
+                        ? 'blue'
+                        : m.role === MemberRole.Member
+                        ? 'green'
+                        : 'red'
+                    }
+                  >
+                    {m.role}
+                  </Badge>
+                </ListItem>
+              ))}
+            </List>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </>
