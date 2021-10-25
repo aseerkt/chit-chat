@@ -23,6 +23,10 @@
 - [ ] Smiley on message
 - [ ] Responsive UI
 
+## Screenshots
+
+![Main Chat UI](/assets/chiti-chat-msg-ss.png)
+
 ## Authors
 
 - Aseer KT
