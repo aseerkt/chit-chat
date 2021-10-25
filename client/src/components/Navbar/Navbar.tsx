@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BsChatSquareDotsFill } from 'react-icons/bs';
 import Invites from './Invites';
 import Notifications from './Notifications';
+import Settings from './Settings';
 
 function Navbar() {
   return (
@@ -30,6 +31,9 @@ function Navbar() {
           </WrapItem>
           <WrapItem>
             <Notifications />
+          </WrapItem>
+          <WrapItem>
+            <Settings />
           </WrapItem>
         </Wrap>
       </Flex>
