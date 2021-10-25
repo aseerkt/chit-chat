@@ -17,17 +17,35 @@ import {
   LoginInput,
   PaginatedUsers,
   RegisterInput,
+  UserInvites,
   UserResponse,
 } from './user.types';
 import { setToken } from '../../utils/jwtHelper';
 import validateEntity from '../../utils/validationHelpers';
+import { Invite } from '../../entities/Invite';
 
 @Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => UserInvites, { nullable: true })
+  @UseMiddleware(protect({ strict: false }))
+  async invites(@Ctx() { res }: MyContext): Promise<UserInvites | null> {
+    if (!res.locals.userId) return null;
+    const invites = await Invite.find({
+      where: [
+        { inviteeId: res.locals.userId },
+        { inviterId: res.locals.userId },
+      ],
+    });
+    return {
+      recieved: invites.filter((i) => i.inviteeId === res.locals.userId),
+      sent: invites.filter((i) => i.inviterId === res.locals.userId),
+    };
+  }
+
   @FieldResolver(() => [Notification], { nullable: true })
   @UseMiddleware(protect({ strict: false }))
   notifications(@Ctx() { res }: MyContext) {
-    if (!res.locals.userId) return [];
+    if (!res.locals.userId) return null;
     return Notification.find({
       where: { recieverId: res.locals.userId },
       order: { createdAt: 'DESC' },
@@ -136,6 +154,7 @@ export class UserResolver {
       { id: res.locals.userId },
       { private: !currentUser.private }
     );
+    userLoader.clear(res.locals.userId!);
     return true;
   }
 }

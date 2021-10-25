@@ -55,6 +55,8 @@ export type Invite = {
   inviteeId: Scalars['Float'];
   inviterId: Scalars['Float'];
   roomId: Scalars['Float'];
+  inviter: User;
+  invitee: User;
 };
 
 export type LoginInput = {
@@ -91,11 +93,18 @@ export type Message = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  handleInvitation: Scalars['Boolean'];
   sendMessage: SendMessageResponse;
   createRoom: CreateRoomResponse;
   register: UserResponse;
   login: UserResponse;
   togglePrivacy: Scalars['Boolean'];
+};
+
+
+export type MutationHandleInvitationArgs = {
+  accept: Scalars['Boolean'];
+  inviteId: Scalars['Int'];
 };
 
 
@@ -230,7 +239,14 @@ export type User = {
   fullName: Scalars['String'];
   username: Scalars['String'];
   private: Scalars['Boolean'];
+  invites?: Maybe<UserInvites>;
   notifications?: Maybe<Array<Notification>>;
+};
+
+export type UserInvites = {
+  __typename?: 'UserInvites';
+  recieved?: Maybe<Array<Invite>>;
+  sent?: Maybe<Array<Invite>>;
 };
 
 export type UserResponse = {
@@ -248,6 +264,8 @@ export type RoomFieldsFragment = { __typename?: 'Room', id: number, name: string
 
 export type UserFieldFragment = { __typename?: 'User', id: number, fullName: string, username: string, private: boolean };
 
+export type UserInvitesFieldFragment = { __typename?: 'UserInvites', recieved?: Maybe<Array<{ __typename?: 'Invite', id: number, inviteeId: number, inviterId: number, inviter: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }>>, sent?: Maybe<Array<{ __typename?: 'Invite', id: number, inviteeId: number, inviterId: number, invitee: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }>> };
+
 export type UserResponseFragment = { __typename?: 'UserResponse', token?: Maybe<string>, user?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> };
 
 export type CreateRoomMutationVariables = Exact<{
@@ -258,6 +276,14 @@ export type CreateRoomMutationVariables = Exact<{
 
 
 export type CreateRoomMutation = { __typename?: 'Mutation', createRoom: { __typename?: 'CreateRoomResponse', room?: Maybe<{ __typename?: 'Room', id: number, name: string, type: RoomType, createdAt: any, updatedAt: any, members: Array<{ __typename?: 'Member', roomId: number, userId: number, role: MemberRole, user: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }> }>, invites?: Maybe<Array<{ __typename?: 'Invite', inviteeId: number, inviterId: number }>>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+
+export type HandleInvitationMutationVariables = Exact<{
+  inviteId: Scalars['Int'];
+  accept: Scalars['Boolean'];
+}>;
+
+
+export type HandleInvitationMutation = { __typename?: 'Mutation', handleInvitation: boolean };
 
 export type LoginMutationVariables = Exact<{
   loginInput: LoginInput;
@@ -311,7 +337,7 @@ export type GetMyRoomsQuery = { __typename?: 'Query', getMyRooms: Array<{ __type
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean, notifications?: Maybe<Array<{ __typename?: 'Notification', recieverId: number }>> } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean, notifications?: Maybe<Array<{ __typename?: 'Notification', recieverId: number }>>, invites?: Maybe<{ __typename?: 'UserInvites', recieved?: Maybe<Array<{ __typename?: 'Invite', id: number, inviteeId: number, inviterId: number, inviter: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }>>, sent?: Maybe<Array<{ __typename?: 'Invite', id: number, inviteeId: number, inviterId: number, invitee: { __typename?: 'User', id: number, fullName: string, username: string, private: boolean } }>> }> } };
 
 export type SearchUserQueryVariables = Exact<{
   term: Scalars['String'];
@@ -370,6 +396,26 @@ export const RoomFieldsFragmentDoc = gql`
   updatedAt
 }
     ${UserFieldFragmentDoc}`;
+export const UserInvitesFieldFragmentDoc = gql`
+    fragment UserInvitesField on UserInvites {
+  recieved {
+    id
+    inviteeId
+    inviterId
+    inviter {
+      ...UserField
+    }
+  }
+  sent {
+    id
+    inviteeId
+    inviterId
+    invitee {
+      ...UserField
+    }
+  }
+}
+    ${UserFieldFragmentDoc}`;
 export const UserResponseFragmentDoc = gql`
     fragment UserResponse on UserResponse {
   user {
@@ -402,6 +448,15 @@ export const CreateRoomDocument = gql`
 
 export function useCreateRoomMutation() {
   return Urql.useMutation<CreateRoomMutation, CreateRoomMutationVariables>(CreateRoomDocument);
+};
+export const HandleInvitationDocument = gql`
+    mutation HandleInvitation($inviteId: Int!, $accept: Boolean!) {
+  handleInvitation(inviteId: $inviteId, accept: $accept)
+}
+    `;
+
+export function useHandleInvitationMutation() {
+  return Urql.useMutation<HandleInvitationMutation, HandleInvitationMutationVariables>(HandleInvitationDocument);
 };
 export const LoginDocument = gql`
     mutation Login($loginInput: LoginInput!) {
@@ -497,10 +552,14 @@ export const MeDocument = gql`
     notifications {
       ...NotificationFields
     }
+    invites {
+      ...UserInvitesField
+    }
   }
 }
     ${UserFieldFragmentDoc}
-${NotificationFieldsFragmentDoc}`;
+${NotificationFieldsFragmentDoc}
+${UserInvitesFieldFragmentDoc}`;
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });

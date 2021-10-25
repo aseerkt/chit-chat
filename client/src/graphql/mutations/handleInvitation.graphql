@@ -1,0 +1,3 @@
+mutation HandleInvitation($inviteId: Int!, $accept: Boolean!) {
+  handleInvitation(inviteId: $inviteId, accept: $accept)
+}

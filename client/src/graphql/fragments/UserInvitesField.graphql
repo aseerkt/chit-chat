@@ -1,0 +1,18 @@
+fragment UserInvitesField on UserInvites {
+  recieved {
+    id
+    inviteeId
+    inviterId
+    inviter {
+      ...UserField
+    }
+  }
+  sent {
+    id
+    inviteeId
+    inviterId
+    invitee {
+      ...UserField
+    }
+  }
+}

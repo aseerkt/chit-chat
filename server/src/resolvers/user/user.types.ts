@@ -1,4 +1,5 @@
 import { Field, InputType, ObjectType } from 'type-graphql';
+import { Invite } from '../../entities/Invite';
 import { User } from '../../entities/User';
 import { Errors } from '../../types/global.types';
 
@@ -32,4 +33,13 @@ export class PaginatedUsers {
   nodes: User[];
   @Field()
   hasMore: boolean;
+}
+
+@ObjectType()
+export class UserInvites {
+  @Field(() => [Invite], { nullable: true })
+  recieved: Invite[];
+
+  @Field(() => [Invite], { nullable: true })
+  sent: Invite[];
 }

@@ -20,6 +20,7 @@ export default cacheExchange({
     Member: (data) => `${data.userId}:${data.roomId}`,
     PaginatedUsers: () => null,
     PaginatedMessages: () => null,
+    UserInvites: () => null,
   },
   resolvers: {
     Query: {
