@@ -25,6 +25,7 @@
 
 ## Screenshots
 
+![ChitChat Home Page](/assets/chiti-chat-home.png)
 ![Main Chat UI](/assets/chiti-chat-msg-ss.png)
 
 ## Authors
