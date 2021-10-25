@@ -1,6 +1,5 @@
-import { Flex, IconButton } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import { Fragment, useEffect, useState } from 'react';
-import { FaPlusSquare } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { useScrollCtx } from '../context/MessageScrollCtx';
 import {

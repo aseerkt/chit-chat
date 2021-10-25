@@ -8,6 +8,7 @@ interface MessageProps {
 function MessageItem({ msg }: MessageProps) {
   const [{ data }] = useMeQuery();
   const isMe = data?.me.id === msg.sender?.id;
+
   return (
     <Flex
       p='3'
