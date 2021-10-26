@@ -1,5 +1,4 @@
-import { Flex, Text, Wrap, WrapItem, IconButton } from '@chakra-ui/react';
-import { FaGithubAlt } from 'react-icons/fa';
+import { Flex, Text, Wrap, WrapItem } from '@chakra-ui/react';
 import { useParams } from 'react-router';
 import { useCurrentRoomCtx } from '../context/RoomContext';
 import { RoomType } from '../generated/graphql';
@@ -13,6 +12,7 @@ function RoomHeader() {
       align='center'
       justify='space-between'
       p='3'
+      h='16'
       borderBottom='1px solid lightgray'
     >
       <Text fontSize='xl' fontWeight='bold'>
@@ -20,21 +20,7 @@ function RoomHeader() {
         {room?.name || 'Welcome to ChitChat'}
       </Text>
       <Wrap>
-        <WrapItem>
-          {room ? (
-            <MemberModal />
-          ) : (
-            <IconButton
-              aria-label='source code'
-              icon={<FaGithubAlt />}
-              as='a'
-              href='https://github.com/aseerkt/chit-chat'
-              target='_blank'
-              rel='no-referrer'
-              isRound
-            />
-          )}
-        </WrapItem>
+        <WrapItem>{room && <MemberModal />}</WrapItem>
       </Wrap>
     </Flex>
   );
