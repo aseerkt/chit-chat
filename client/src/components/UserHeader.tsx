@@ -8,6 +8,7 @@ function UserHeader() {
   return (
     <Flex
       p='3'
+      h='16'
       align='center'
       justify='space-between'
       borderBottom='1px solid lightgray'
