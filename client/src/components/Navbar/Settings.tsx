@@ -6,8 +6,10 @@ import {
   MenuList,
   Switch,
   Text,
+  Divider,
 } from '@chakra-ui/react';
 import { FaCog } from 'react-icons/fa';
+import { JWT_LOCAL_NAME } from '../../constants';
 import { useTogglePrivacyMutation, useMeQuery } from '../../generated/graphql';
 
 function Settings() {
@@ -37,6 +39,15 @@ function Settings() {
           <Text ml='2' fontWeight='500'>
             Private
           </Text>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            localStorage.removeItem(JWT_LOCAL_NAME);
+            window.location.pathname = '/';
+          }}
+        >
+          Logout
         </MenuItem>
       </MenuList>
     </Menu>
