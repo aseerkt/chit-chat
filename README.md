@@ -9,7 +9,9 @@
 - TypeORM
 - TypeGraphQL
 
-## Features Roadmap
+## Features
+
+### Roadmap
 
 - [x] JWT Authentication
 - [x] Create DM
@@ -17,14 +19,20 @@
 - [x] Realtime Messaging in DM and Group
 - [x] Group Admin
 - [x] Private Accounts
+- [x] Group Invites
 - [ ] Add members to group
 - [ ] Kick members from group
 - [ ] Leave group
-- [ ] Group Invites
+- [ ] User profile
 - [ ] Public and Private Groups
 - [ ] Reply to message
 - [ ] Smiley on message
 - [ ] Responsive UI
+
+### Extras
+
+- [ ] Test Accounts
+- [ ] Data seeding
 
 ## Screenshots
 
