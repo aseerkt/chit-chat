@@ -1,6 +1,7 @@
-import { Button } from '@chakra-ui/button';
+import { Button, IconButton } from '@chakra-ui/button';
 import { Image } from '@chakra-ui/image';
 import { Flex, Grid, HStack, Text } from '@chakra-ui/layout';
+import { FaGithubAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 function Home() {
@@ -22,7 +23,7 @@ function Home() {
         align={{ base: 'center', sm: 'flex-end' }}
         py='10'
         justify='center'
-        textAlign='right'
+        textAlign={{ base: 'center', sm: 'right' }}
       >
         <Text color='teal' fontSize='5xl' mb='3' fontWeight='bolder'>
           ChitChat
@@ -42,6 +43,18 @@ function Home() {
             </Button>
           </Link>
         </HStack>
+        <IconButton
+          aria-label='source code'
+          icon={<FaGithubAlt />}
+          as='a'
+          mt='3'
+          colorScheme='blackAlpha'
+          size='lg'
+          href='https://github.com/aseerkt/chit-chat'
+          target='_blank'
+          rel='no-referrer'
+          isRound
+        />
       </Flex>
     </Grid>
   );

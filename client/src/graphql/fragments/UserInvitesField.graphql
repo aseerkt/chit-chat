@@ -1,16 +1,20 @@
+fragment InviteField on Invite {
+  id
+  info
+  inviteeId
+  inviterId
+  roomId
+}
+
 fragment UserInvitesField on UserInvites {
   recieved {
-    id
-    inviteeId
-    inviterId
+    ...InviteField
     inviter {
       ...UserField
     }
   }
   sent {
-    id
-    inviteeId
-    inviterId
+    ...InviteField
     invitee {
       ...UserField
     }

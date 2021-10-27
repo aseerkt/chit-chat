@@ -18,14 +18,13 @@ export const protect: ProtectMiddleware =
       }
       const payload: any = getPayload(token);
       context.res.locals.userId = payload.userId;
-      return next();
     } catch (err) {
       console.log(err);
       if (strict) {
         throw new AuthenticationError('Not Authenticated');
       }
-      return next();
     }
+    return next();
   };
 
 export const hasRoomAccess: MiddlewareFn<MyContext> = async function (

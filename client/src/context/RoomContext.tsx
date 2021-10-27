@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Room, useGetMyRoomsQuery } from '../generated/graphql';
+import CSpinner from '../shared/CSpinner';
 
 interface RoomCtxType {
   loading: boolean;
@@ -20,10 +21,16 @@ function CurrentRoomProvider({ children }: { children: React.ReactNode }) {
     const currentRoom = data?.getMyRooms.find(
       (r) => r.id === parseInt(params.roomId)
     );
-    if (!currentRoom) history.replace('/room/@me');
-    else setRoom(currentRoom as Room);
+    if (!currentRoom) {
+      const firstRoomId = data?.getMyRooms[0]?.id;
+      history.replace(`/room/${firstRoomId || '@me'}`);
+    } else setRoom(currentRoom as Room);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.roomId, data]);
+
+  if (fetching) {
+    return <CSpinner />;
+  }
 
   return (
     <RoomCtx.Provider value={{ loading: fetching, room }}>

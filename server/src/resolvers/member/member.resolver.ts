@@ -1,4 +1,4 @@
-import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
+import { Ctx, FieldResolver, Mutation, Resolver, Root } from 'type-graphql';
 import { Member } from '../../entities/Member';
 import { User } from '../../entities/User';
 import { MyContext } from '../../types/global.types';
@@ -13,4 +13,10 @@ export class MemberResolver {
   // TODO: Add member to room
   // TODO: Leave Room
   // TODO: Kick member from room
+
+  @Mutation(() => Boolean)
+  addMembers() {}
+
+  @Mutation(() => Boolean)
+  kickMembers() {}
 }

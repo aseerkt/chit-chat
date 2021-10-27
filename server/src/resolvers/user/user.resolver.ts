@@ -17,12 +17,12 @@ import {
   LoginInput,
   PaginatedUsers,
   RegisterInput,
-  UserInvites,
   UserResponse,
 } from './user.types';
 import { setToken } from '../../utils/jwtHelper';
 import validateEntity from '../../utils/validationHelpers';
 import { Invite } from '../../entities/Invite';
+import { UserInvites } from '../invite/invite.types';
 
 @Resolver(User)
 export class UserResolver {

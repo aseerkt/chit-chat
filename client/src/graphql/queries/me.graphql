@@ -4,8 +4,5 @@ query Me {
     notifications {
       ...NotificationFields
     }
-    invites {
-      ...UserInvitesField
-    }
   }
 }

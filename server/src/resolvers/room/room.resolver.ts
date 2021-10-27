@@ -155,7 +155,9 @@ export class RoomResolver {
       await tem.save(memberValues);
       // Send invites to private accounts
       let invites: Invite[] | undefined;
-      const privateUsers = memberUsers.filter((u) => u.private);
+      const privateUsers = memberUsers.filter(
+        (u) => u.private && u.id !== res.locals.userId
+      );
       if (privateUsers.length > 0) {
         const inviteEntities = tem.create(
           Invite,
@@ -163,6 +165,10 @@ export class RoomResolver {
             inviteeId: u.id,
             inviterId: res.locals.userId,
             roomId: newRoom.id,
+            info:
+              type === RoomType.DM
+                ? 'Requested for DM'
+                : `Invited to join ${name}`,
           }))
         );
         invites = await tem.save(inviteEntities);

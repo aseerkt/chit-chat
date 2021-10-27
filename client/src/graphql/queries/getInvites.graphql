@@ -1,0 +1,5 @@
+query GetInvites {
+  getInvites {
+    ...UserInvitesField
+  }
+}

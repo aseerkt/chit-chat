@@ -1,4 +1,4 @@
-import { cacheExchange } from '@urql/exchange-graphcache';
+import { Cache, cacheExchange } from '@urql/exchange-graphcache';
 import { JWT_LOCAL_NAME } from '../constants';
 import {
   GetNewMessageSubscription,
@@ -12,8 +12,18 @@ import {
   User,
   LoginMutation,
   TogglePrivacyMutation,
+  HandleInvitationMutation,
+  CreateRoomMutation,
 } from '../generated/graphql';
 import { customPagination } from './customPagination';
+
+function invalidateQueryField(cache: Cache, fieldName: string) {
+  const allFields = cache.inspectFields('Query');
+  const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+  fieldInfos.forEach((fi) => {
+    cache.invalidate('Query', fi.fieldKey);
+  });
+}
 
 export default cacheExchange({
   keys: {
@@ -69,20 +79,23 @@ export default cacheExchange({
         }));
         localStorage.setItem(JWT_LOCAL_NAME, token);
       },
-      createRoom: (_result, _args, cache) => {
-        const allFields = cache.inspectFields('Query');
-        const fieldInfos = allFields.filter(
-          (info) => info.fieldName === 'getMyRooms'
-        );
-        fieldInfos.forEach((fi) => {
-          cache.invalidate('Query', fi.fieldKey);
-        });
+      createRoom: (result: CreateRoomMutation, _args, cache) => {
+        if (result.createRoom.room) {
+          invalidateQueryField(cache, 'getMyRooms');
+          invalidateQueryField(cache, 'getInvites');
+        }
       },
       togglePrivacy: (result: TogglePrivacyMutation, _args, cache) => {
         if (!result.togglePrivacy) return;
         cache.updateQuery<MeQuery>({ query: MeDocument }, (data) => ({
           me: { ...data!.me, private: !data!.me.private } as User,
         }));
+      },
+      handleInvitation: (result: HandleInvitationMutation, _args, cache) => {
+        if (result.handleInvitation.ok) {
+          invalidateQueryField(cache, 'getMyRooms');
+          invalidateQueryField(cache, 'getInvites');
+        }
       },
     },
   },

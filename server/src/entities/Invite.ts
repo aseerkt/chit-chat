@@ -8,6 +8,10 @@ import { User } from './User';
 @Entity('invites')
 export class Invite extends Base {
   @Field()
+  @Column({ type: 'text' })
+  info: string;
+
+  @Field()
   @Column()
   inviteeId: number;
 

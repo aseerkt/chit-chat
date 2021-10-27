@@ -12,6 +12,7 @@ export default [
   {
     username: 'jane',
     fullName: 'Jane Tester',
+    private: true,
   },
   {
     username: 'harry',

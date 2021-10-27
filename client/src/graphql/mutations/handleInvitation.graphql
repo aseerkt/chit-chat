@@ -1,3 +1,6 @@
 mutation HandleInvitation($inviteId: Int!, $accept: Boolean!) {
-  handleInvitation(inviteId: $inviteId, accept: $accept)
+  handleInvitation(inviteId: $inviteId, accept: $accept) {
+    ok
+    accept
+  }
 }
