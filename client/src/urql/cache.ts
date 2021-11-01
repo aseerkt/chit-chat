@@ -63,7 +63,7 @@ export default cacheExchange({
       },
     },
     Mutation: {
-      register: (result: RegisterMutation, args, cache) => {
+      register: (result: RegisterMutation, _args, cache) => {
         const { token, user } = result.register;
         if (!token || !user) return;
         cache.updateQuery<MeQuery>({ query: MeDocument }, () => ({

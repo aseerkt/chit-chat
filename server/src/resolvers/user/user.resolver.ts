@@ -20,28 +20,9 @@ import {
   UserResponse,
 } from './user.types';
 import { setToken } from '../../utils/jwtHelper';
-import validateEntity from '../../utils/validationHelpers';
-import { Invite } from '../../entities/Invite';
-import { UserInvites } from '../invite/invite.types';
 
 @Resolver(User)
 export class UserResolver {
-  @FieldResolver(() => UserInvites, { nullable: true })
-  @UseMiddleware(protect({ strict: false }))
-  async invites(@Ctx() { res }: MyContext): Promise<UserInvites | null> {
-    if (!res.locals.userId) return null;
-    const invites = await Invite.find({
-      where: [
-        { inviteeId: res.locals.userId },
-        { inviterId: res.locals.userId },
-      ],
-    });
-    return {
-      recieved: invites.filter((i) => i.inviteeId === res.locals.userId),
-      sent: invites.filter((i) => i.inviterId === res.locals.userId),
-    };
-  }
-
   @FieldResolver(() => [Notification], { nullable: true })
   @UseMiddleware(protect({ strict: false }))
   notifications(@Ctx() { res }: MyContext) {
@@ -91,7 +72,6 @@ export class UserResolver {
     return res.locals.userId ? userLoader.load(res.locals.userId) : null;
   }
 
-  @Query(() => User, { nullable: false })
   @Mutation(() => UserResponse)
   async register(
     @Arg('registerInput') registerInput: RegisterInput
@@ -100,6 +80,7 @@ export class UserResolver {
       const user = await User.findOne({
         where: { username: registerInput.username },
       });
+
       if (user)
         return {
           errors: [{ field: 'username', message: 'Username is already taken' }],
@@ -107,8 +88,6 @@ export class UserResolver {
 
       const newUser = User.create({ ...registerInput });
       console.log('made it here');
-      const { errors } = await validateEntity(newUser);
-      if (errors) return { errors };
       await newUser.save();
       return { user: newUser, token: setToken(newUser) };
     } catch (err) {
