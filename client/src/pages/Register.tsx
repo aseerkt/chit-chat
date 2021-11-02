@@ -23,7 +23,7 @@ function Register() {
     password: '',
   });
 
-  usePublicRedirect();
+  usePublicRedirect(true);
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));

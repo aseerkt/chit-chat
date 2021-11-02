@@ -3,8 +3,11 @@ import { Image } from '@chakra-ui/image';
 import { Flex, Grid, HStack, Text } from '@chakra-ui/layout';
 import { FaGithubAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import usePublicRedirect from '../hooks/usePublicRedirect';
 
 function Home() {
+  usePublicRedirect();
+
   return (
     <Grid
       h='100vh'
