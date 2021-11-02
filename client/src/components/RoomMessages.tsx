@@ -27,7 +27,6 @@ function RoomMessages() {
   const { ScrollRefComponent } = useScrollCtx();
 
   useGetNewMessageSubscription({
-    variables: { roomId: parseInt(params.roomId) },
     pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
   });
 
@@ -89,6 +88,7 @@ function RoomMessages() {
           );
         })}
         {fetching && <CSpinner />}
+        {params.roomId === '@me' && <Flex h='full' w='full'></Flex>}
       </Flex>
     </Flex>
   );

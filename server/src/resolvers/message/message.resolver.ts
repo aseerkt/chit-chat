@@ -17,7 +17,11 @@ import { Message } from '../../entities/Message';
 import { protect, hasRoomAccess } from '../../middlewares/permissions';
 import { MyContext } from '../../types/global.types';
 import { LessThan } from 'typeorm';
-import { PaginatedMessages, SendMessageResponse } from './message.types';
+import {
+  NewMessagePayload,
+  PaginatedMessages,
+  SendMessageResponse,
+} from './message.types';
 
 // @ObjectType()
 // class MessagePayload {
@@ -63,27 +67,29 @@ export class MessageResolver {
   async sendMessage(
     @Arg('roomId', () => Int) roomId: number,
     @Arg('text') text: string,
-    @Ctx() { res }: MyContext,
-    @PubSub('NEW_MESSAGE') publish: Publisher<Message>
+    @Ctx() { res, memberLoader }: MyContext,
+    @PubSub('NEW_MESSAGE') publish: Publisher<NewMessagePayload>
   ): Promise<SendMessageResponse> {
+    const members = await memberLoader.load(roomId);
     const message = await Message.create({
       roomId: roomId,
       text,
       senderId: res.locals.userId,
     }).save();
-    await publish(message);
+    await publish({
+      message,
+      participants: members.map((member) => member.userId),
+    });
     return { message };
   }
 
   @Subscription({
     topics: 'NEW_MESSAGE',
-    filter: ({ args, payload }) => args.roomId === payload.roomId,
+    filter: ({ payload, context }) =>
+      payload.participants.includes(context.userId),
   })
-  getNewMessage(
-    @Root() msgPayload: Message,
-    @Arg('roomId', () => Int) roomId: number
-  ): Message {
-    console.log(roomId);
+  getNewMessage(@Root() msgPayload: NewMessagePayload): NewMessagePayload {
+    console.log(msgPayload);
     return msgPayload;
   }
 }

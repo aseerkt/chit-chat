@@ -1,5 +1,8 @@
-subscription GetNewMessage($roomId: Int!) {
-  getNewMessage(roomId: $roomId) {
-    ...MessageFields
+subscription GetNewMessage {
+  getNewMessage {
+    message {
+      ...MessageFields
+    }
+    participants
   }
 }

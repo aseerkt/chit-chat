@@ -139,6 +139,12 @@ export type MutationLoginArgs = {
   loginInput: LoginInput;
 };
 
+export type NewMessagePayload = {
+  __typename?: 'NewMessagePayload';
+  message: Message;
+  participants: Array<Scalars['Float']>;
+};
+
 export type Notification = {
   __typename?: 'Notification';
   id: Scalars['Int'];
@@ -179,7 +185,6 @@ export type Query = {
   allUsers: PaginatedUsers;
   searchUser?: Maybe<Array<User>>;
   me: User;
-  register: User;
 };
 
 
@@ -198,11 +203,6 @@ export type QueryAllUsersArgs = {
 
 export type QuerySearchUserArgs = {
   term: Scalars['String'];
-};
-
-
-export type QueryRegisterArgs = {
-  registerInput: RegisterInput;
 };
 
 export type RegisterInput = {
@@ -235,12 +235,7 @@ export type SendMessageResponse = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  getNewMessage: Message;
-};
-
-
-export type SubscriptionGetNewMessageArgs = {
-  roomId: Scalars['Int'];
+  getNewMessage: NewMessagePayload;
 };
 
 export type User = {
@@ -249,7 +244,6 @@ export type User = {
   fullName: Scalars['String'];
   username: Scalars['String'];
   private: Scalars['Boolean'];
-  invites?: Maybe<UserInvites>;
   notifications?: Maybe<Array<Notification>>;
 };
 
@@ -363,12 +357,10 @@ export type SearchUserQueryVariables = Exact<{
 
 export type SearchUserQuery = { __typename?: 'Query', searchUser?: Maybe<Array<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }>> };
 
-export type GetNewMessageSubscriptionVariables = Exact<{
-  roomId: Scalars['Int'];
-}>;
+export type GetNewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetNewMessageSubscription = { __typename?: 'Subscription', getNewMessage: { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } };
+export type GetNewMessageSubscription = { __typename?: 'Subscription', getNewMessage: { __typename?: 'NewMessagePayload', participants: Array<number>, message: { __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> } } };
 
 export const UserFieldFragmentDoc = gql`
     fragment UserField on User {
@@ -609,9 +601,12 @@ export function useSearchUserQuery(options: Omit<Urql.UseQueryArgs<SearchUserQue
   return Urql.useQuery<SearchUserQuery>({ query: SearchUserDocument, ...options });
 };
 export const GetNewMessageDocument = gql`
-    subscription GetNewMessage($roomId: Int!) {
-  getNewMessage(roomId: $roomId) {
-    ...MessageFields
+    subscription GetNewMessage {
+  getNewMessage {
+    message {
+      ...MessageFields
+    }
+    participants
   }
 }
     ${MessageFieldsFragmentDoc}`;

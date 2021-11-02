@@ -18,6 +18,7 @@ import userLoader from './dataloaders/userLoader';
 import memberLoader from './dataloaders/memberLoader';
 import msgLoader from './dataloaders/messageLoader';
 import ormconfig from './ormconfig';
+import { getPayload } from './utils/jwtHelper';
 
 async function startServer() {
   await createConnection(ormconfig);
@@ -54,7 +55,20 @@ async function startServer() {
       path: '/graphql',
     });
 
-    useServer({ schema, context: { userLoader } }, wsServer);
+    useServer(
+      {
+        schema,
+        context: (ctx) => {
+          const token = ctx.connectionParams?.authToken as string | undefined;
+          if (!token) {
+            throw new Error('WS Token missing');
+          }
+          const payload: any = getPayload(token);
+          return { userLoader, userId: payload.userId };
+        },
+      },
+      wsServer
+    );
 
     console.log(successLog(`GraphQL API: http://localhost:${PORT}/graphql`));
   });

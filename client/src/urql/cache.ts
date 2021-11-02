@@ -2,7 +2,6 @@ import { Cache, cacheExchange } from '@urql/exchange-graphcache';
 import { JWT_LOCAL_NAME } from '../constants';
 import {
   GetNewMessageSubscription,
-  GetNewMessageSubscriptionVariables,
   GetMessagesQuery,
   GetMessagesQueryVariables,
   GetMessagesDocument,
@@ -40,22 +39,24 @@ export default cacheExchange({
   },
   updates: {
     Subscription: {
-      getNewMessage: (
-        result: GetNewMessageSubscription,
-        args: GetNewMessageSubscriptionVariables,
-        cache
-      ) => {
+      getNewMessage: (result: GetNewMessageSubscription, _args, cache) => {
         cache.updateQuery<GetMessagesQuery, GetMessagesQueryVariables>(
           {
             query: GetMessagesDocument,
-            variables: { roomId: args.roomId, limit: 20 },
+            variables: {
+              roomId: result.getNewMessage.message.roomId,
+              limit: 20,
+            },
           },
           (data) => {
             if (!data || !result.getNewMessage) return data;
             return {
               getMessages: {
                 ...data.getMessages,
-                nodes: [result.getNewMessage, ...data.getMessages.nodes],
+                nodes: [
+                  result.getNewMessage.message,
+                  ...data.getMessages.nodes,
+                ],
               },
             };
           }

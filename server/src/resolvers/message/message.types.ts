@@ -16,3 +16,12 @@ export class PaginatedMessages {
   @Field()
   hasMore: boolean;
 }
+
+@ObjectType()
+export class NewMessagePayload {
+  @Field(() => Message)
+  message: Message;
+
+  @Field(() => [Number])
+  participants: number[];
+}
