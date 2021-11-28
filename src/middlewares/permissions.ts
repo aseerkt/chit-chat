@@ -19,7 +19,7 @@ export const protect: ProtectMiddleware =
       const payload: any = getPayload(token);
       context.res.locals.userId = payload.userId;
     } catch (err) {
-      console.log(err);
+      console.log(err.message);
       if (strict) {
         throw new AuthenticationError('Not Authenticated');
       }
