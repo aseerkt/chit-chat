@@ -87,6 +87,7 @@ export class UserResolver {
         };
 
       const newUser = User.create({ ...registerInput });
+
       // console.log('made it here');
       await newUser.save();
       return { user: newUser, token: setToken(newUser) };
@@ -121,6 +122,7 @@ export class UserResolver {
       };
     } catch (err) {
       // console.log(err);
+
       return { errors: [{ field: 'unknown', message: err.message }] };
     }
   }

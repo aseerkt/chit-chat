@@ -120,6 +120,7 @@ export class RoomResolver {
       );
       // console.log(results);
 
+
       if (results.length !== 0) {
         return { room: results[0] };
       }
@@ -136,6 +137,7 @@ export class RoomResolver {
       });
       await tem.save(newRoom);
       // console.log(newRoom);
+
 
       const memberValues = tem.create(
         Member,
