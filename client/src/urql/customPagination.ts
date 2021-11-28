@@ -33,8 +33,6 @@ export const customPagination = (
       );
 
     fieldInfos.forEach((fi) => {
-      console.log(fi.fieldKey);
-
       const key = cache.resolve(entityKey, fi.fieldKey) as string;
       const data = cache.resolve(key, 'nodes') as string[];
       const _hasMore = cache.resolve(key, 'hasMore');

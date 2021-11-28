@@ -118,7 +118,7 @@ export class RoomResolver {
               `,
         [...members].sort((m1, m2) => m1 - m2)
       );
-      console.log(results);
+      // console.log(results);
 
       if (results.length !== 0) {
         return { room: results[0] };
@@ -135,7 +135,7 @@ export class RoomResolver {
         type,
       });
       await tem.save(newRoom);
-      console.log(newRoom);
+      // console.log(newRoom);
 
       const memberValues = tem.create(
         Member,
