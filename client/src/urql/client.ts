@@ -34,7 +34,7 @@ const client = createClient({
       forwardSubscription(operation) {
         return {
           subscribe: (sink) => {
-            const dispose = wsClient.subscribe(operation, sink);
+            const dispose = wsClient.subscribe(operation, sink as any);
             return {
               unsubscribe: dispose,
             };

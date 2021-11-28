@@ -40,7 +40,7 @@
     "typeorm": "ts-node ./node_modules/typeorm/cli.js --config src/ormconfig.ts",
     "migration:gen": "yarn typeorm migration:generate -n",
     "migration:run": "yarn typeorm migration:run",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false yarn tsc && yarn --cwd client && yarn --cwd client build"
+    "heroku-postbuild": "yarn tsc && yarn --cwd client && yarn --cwd client build"
   },
   "license": "MIT"
 }
