@@ -23,6 +23,6 @@
     "resolveJsonModule": true,
     "baseUrl": "."
   },
-  "exclude": ["node_modules", "client"],
+  "exclude": ["node_modules"],
   "include": ["./src/**/*.ts", "ormconfig.ts"]
 }
