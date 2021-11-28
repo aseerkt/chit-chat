@@ -33,11 +33,11 @@
   },
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "concurrently -n TSC,SERVER -c blue.bold,yellow.bold \"npx tsc -w\" \"nodemon dist/index.js\" ",
+    "dev": "concurrently -n TSC,SERVER -c blue.bold,yellow.bold \"npx tsc -w\" \"nodemon --ignore client dist/index.js\" ",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js --config src/ormconfig.ts",
     "migration:gen": "yarn typeorm migration:generate -n",
     "migration:run": "yarn typeorm migration:run",
-    "heroku-postbuild": "npx tsc"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npx tsc && yarn --cwd client && yarn --cwd client build"
   },
   "license": "MIT"
 }

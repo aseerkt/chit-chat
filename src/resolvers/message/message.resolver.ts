@@ -89,7 +89,7 @@ export class MessageResolver {
       payload.participants.includes(context.userId),
   })
   getNewMessage(@Root() msgPayload: NewMessagePayload): NewMessagePayload {
-    console.log(msgPayload);
+    // console.log(msgPayload);
     return msgPayload;
   }
 }
