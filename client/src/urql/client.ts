@@ -31,11 +31,16 @@ const client = createClient({
     // urqlAuth,
     fetchExchange,
     subscriptionExchange({
-      forwardSubscription: (operation) => ({
-        subscribe: (sink) => ({
-          unsubscribe: wsClient.subscribe(operation, sink),
-        }),
-      }),
+      forwardSubscription(operation) {
+        return {
+          subscribe: (sink) => {
+            const dispose = wsClient.subscribe(operation, sink);
+            return {
+              unsubscribe: dispose,
+            };
+          },
+        };
+      },
     }),
   ],
 });
