@@ -107,6 +107,7 @@ export type Mutation = {
   createRoom: CreateRoomResponse;
   register: UserResponse;
   login: UserResponse;
+  testLogin: UserResponse;
   togglePrivacy: Scalars['Boolean'];
 };
 
@@ -137,6 +138,11 @@ export type MutationRegisterArgs = {
 
 export type MutationLoginArgs = {
   loginInput: LoginInput;
+};
+
+
+export type MutationTestLoginArgs = {
+  username: Scalars['String'];
 };
 
 export type NewMessagePayload = {
@@ -312,6 +318,13 @@ export type SendMessageMutationVariables = Exact<{
 
 
 export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'SendMessageResponse', message?: Maybe<{ __typename?: 'Message', id: number, text: string, senderId: number, roomId: number, createdAt: any, updatedAt: any, sender?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }> }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
+
+export type TestLoginMutationVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+
+export type TestLoginMutation = { __typename?: 'Mutation', testLogin: { __typename?: 'UserResponse', token?: Maybe<string>, user?: Maybe<{ __typename?: 'User', id: number, fullName: string, username: string, private: boolean }>, errors?: Maybe<Array<{ __typename?: 'FieldError', field: string, message: string }>> } };
 
 export type TogglePrivacyMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -514,6 +527,17 @@ export const SendMessageDocument = gql`
 
 export function useSendMessageMutation() {
   return Urql.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument);
+};
+export const TestLoginDocument = gql`
+    mutation TestLogin($username: String!) {
+  testLogin(username: $username) {
+    ...UserResponse
+  }
+}
+    ${UserResponseFragmentDoc}`;
+
+export function useTestLoginMutation() {
+  return Urql.useMutation<TestLoginMutation, TestLoginMutationVariables>(TestLoginDocument);
 };
 export const TogglePrivacyDocument = gql`
     mutation TogglePrivacy {

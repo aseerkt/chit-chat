@@ -1,18 +1,17 @@
-import { Cache, cacheExchange } from '@urql/exchange-graphcache';
+import { Cache, cacheExchange, Variables } from '@urql/exchange-graphcache';
 import { JWT_LOCAL_NAME } from '../constants';
 import {
   GetNewMessageSubscription,
   GetMessagesQuery,
   GetMessagesQueryVariables,
   GetMessagesDocument,
-  RegisterMutation,
   MeQuery,
   MeDocument,
   User,
-  LoginMutation,
   TogglePrivacyMutation,
   HandleInvitationMutation,
   CreateRoomMutation,
+  UserResponse,
 } from '../generated/graphql';
 import { customPagination } from './customPagination';
 
@@ -22,6 +21,17 @@ function invalidateQueryField(cache: Cache, fieldName: string) {
   fieldInfos.forEach((fi) => {
     cache.invalidate('Query', fi.fieldKey);
   });
+}
+
+function updateUserCache(field: 'register' | 'login' | 'testLogin') {
+  return (result: any, _args: Variables, cache: Cache) => {
+    const { token, user } = result[field] as UserResponse;
+    if (!token || !user) return;
+    cache.updateQuery<MeQuery>({ query: MeDocument }, () => ({
+      me: user as User,
+    }));
+    localStorage.setItem(JWT_LOCAL_NAME, token);
+  };
 }
 
 export default cacheExchange({
@@ -64,22 +74,9 @@ export default cacheExchange({
       },
     },
     Mutation: {
-      register: (result: RegisterMutation, _args, cache) => {
-        const { token, user } = result.register;
-        if (!token || !user) return;
-        cache.updateQuery<MeQuery>({ query: MeDocument }, () => ({
-          me: user as User,
-        }));
-        localStorage.setItem(JWT_LOCAL_NAME, token);
-      },
-      login: (result: LoginMutation, _args, cache) => {
-        const { token, user } = result.login;
-        if (!token || !user) return;
-        cache.updateQuery<MeQuery>({ query: MeDocument }, () => ({
-          me: user as User,
-        }));
-        localStorage.setItem(JWT_LOCAL_NAME, token);
-      },
+      register: updateUserCache('register'),
+      login: updateUserCache('login'),
+      testLogin: updateUserCache('testLogin'),
       createRoom: (result: CreateRoomMutation, _args, cache) => {
         if (result.createRoom.room) {
           invalidateQueryField(cache, 'getMyRooms');

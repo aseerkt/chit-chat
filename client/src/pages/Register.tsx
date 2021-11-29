@@ -67,7 +67,7 @@ function Register() {
       marginX='auto'
       marginTop='1rem'
       border='1px solid lightgray'
-      p='5'
+      p='6'
     >
       <Text as='h1' fontWeight='bold' fontSize='2xl' mb='5'>
         Register
@@ -109,9 +109,12 @@ function Register() {
         </Button>
       </form>
       <Divider />
-      <Link mt='5' as={RouterLink} to='/login'>
-        Login
-      </Link>
+      <Text mt='5'>
+        Already have an account?{' '}
+        <Link as={RouterLink} to='/login'>
+          Login
+        </Link>
+      </Text>
     </Box>
   );
 }

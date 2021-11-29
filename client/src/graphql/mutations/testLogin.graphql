@@ -1,0 +1,5 @@
+mutation TestLogin($username: String!) {
+  testLogin(username: $username) {
+    ...UserResponse
+  }
+}
