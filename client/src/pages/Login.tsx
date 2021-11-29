@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import TestLogin from '../components/TestLogin';
 import { useLoginMutation } from '../generated/graphql';
 import usePublicRedirect from '../hooks/usePublicRedirect';
 
@@ -68,7 +69,7 @@ function Login() {
       marginX='auto'
       marginTop='1rem'
       border='1px solid lightgray'
-      p='5'
+      p='6'
     >
       <Text fontWeight='bold' fontSize='2xl' mb='5'>
         Login
@@ -102,9 +103,13 @@ function Login() {
         </Button>
       </form>
       <Divider />
-      <Link mt='5' as={RouterLink} to='/register'>
-        Register
-      </Link>
+      <Text mt='5'>
+        Don't have an account?{' '}
+        <Link as={RouterLink} to='/register'>
+          Register
+        </Link>
+      </Text>
+      <TestLogin />
     </Box>
   );
 }

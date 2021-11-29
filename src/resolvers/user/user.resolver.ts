@@ -66,7 +66,7 @@ export class UserResolver {
       .getMany();
   }
 
-  @Query(() => User, { nullable: false })
+  @Query(() => User, { nullable: true })
   @UseMiddleware(protect({ strict: false }))
   me(@Ctx() { res, userLoader }: MyContext) {
     return res.locals.userId ? userLoader.load(res.locals.userId) : null;
@@ -125,6 +125,17 @@ export class UserResolver {
 
       return { errors: [{ field: 'unknown', message: err.message }] };
     }
+  }
+
+  @Mutation(() => UserResponse)
+  async testLogin(@Arg('username') username: string): Promise<UserResponse> {
+    if (username === 'bob' || username === 'harry') {
+      const user = await User.findOne({ where: { username } });
+      if (!user)
+        return { errors: [{ field: 'username', message: 'User not found' }] };
+      return { user, token: setToken(user) };
+    }
+    return { errors: [{ field: 'username', message: 'Not test user' }] };
   }
 
   @Mutation(() => Boolean)
