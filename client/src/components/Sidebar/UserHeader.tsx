@@ -1,6 +1,6 @@
 import { Avatar, Flex, Text, Wrap, WrapItem } from '@chakra-ui/react';
-import { useMeQuery } from '../generated/graphql';
-import CreateRoomModal from './CreateRoom/CreateRoomModal';
+import { useMeQuery } from '../../generated/graphql';
+import CreateRoomModal from '../CreateRoom/CreateRoomModal';
 
 function UserHeader() {
   const [{ data: meData }] = useMeQuery();

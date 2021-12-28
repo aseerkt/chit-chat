@@ -1,9 +1,9 @@
 import { Flex } from '@chakra-ui/react';
 import AddMessage from '../components/AddMessage';
-import ListRooms from '../components/ListRooms';
+import ListRooms from '../components/Sidebar/ListRooms';
 import RoomHeader from '../components/RoomHeader';
 import RoomMessages from '../components/RoomMessages';
-import UserHeader from '../components/UserHeader';
+import UserHeader from '../components/Sidebar/UserHeader';
 import ScrollStateProvider from '../context/MessageScrollCtx';
 import CurrentRoomProvider from '../context/RoomContext';
 

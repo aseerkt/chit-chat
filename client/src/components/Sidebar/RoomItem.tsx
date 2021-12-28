@@ -1,7 +1,7 @@
 import { Avatar, Flex, Icon } from '@chakra-ui/react';
 import { FaUser, FaUsers } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
-import { Room, RoomType } from '../generated/graphql';
+import { Room, RoomType } from '../../generated/graphql';
 
 interface RoomItemProps {
   room: Room;

@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
-import { Room, useGetMyRoomsQuery } from '../generated/graphql';
-import CSpinner from '../shared/CSpinner';
+import { Room, useGetMyRoomsQuery } from '../../generated/graphql';
+import CSpinner from '../../shared/CSpinner';
 import RoomItem from './RoomItem';
 
 function ListRooms() {

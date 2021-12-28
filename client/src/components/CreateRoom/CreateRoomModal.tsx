@@ -36,6 +36,7 @@ function CreateRoomModal() {
         icon={<FiEdit2 />}
         onClick={onOpen}
         isRound
+        size='sm'
       />
 
       {/* Create room modal */}
