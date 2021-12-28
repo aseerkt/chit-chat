@@ -24,6 +24,7 @@ function MemberModal() {
         aria-label='room info'
         icon={<FaInfoCircle />}
         isRound
+        size='sm'
       />
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

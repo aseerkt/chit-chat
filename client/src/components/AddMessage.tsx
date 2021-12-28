@@ -25,6 +25,9 @@ function AddMessage() {
       console.error(err);
     }
   };
+
+  if (params.roomId.includes('@')) return null;
+
   return (
     <form
       style={{ width: '100%', height: 'max-content' }}
@@ -42,7 +45,7 @@ function AddMessage() {
             _disabled={{ cursor: 'not-allowed' }}
             placeholder={` Send message to ${
               room?.type === RoomType.Dm ? '@' : '#'
-            }${room?.name || 'room'}`}
+            }${room?.name}`}
           />
         </FormControl>
         <Button

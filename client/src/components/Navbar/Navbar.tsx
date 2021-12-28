@@ -29,9 +29,9 @@ function Navbar() {
           <WrapItem>
             <Invites />
           </WrapItem>
-          <WrapItem>
+          {/* <WrapItem>
             <Notifications />
-          </WrapItem>
+          </WrapItem> */}
           <WrapItem>
             <Settings />
           </WrapItem>

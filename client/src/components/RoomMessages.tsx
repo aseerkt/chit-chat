@@ -1,11 +1,13 @@
-import { Flex } from '@chakra-ui/react';
+import { Flex, Text, chakra, IconButton } from '@chakra-ui/react';
 import { Fragment, useEffect, useState } from 'react';
+import { FiEdit2 } from 'react-icons/fi';
 import { useParams } from 'react-router-dom';
 import { useScrollCtx } from '../context/MessageScrollCtx';
 import {
   GetMessagesQueryVariables,
   useGetMessagesQuery,
   useGetNewMessageSubscription,
+  useMeQuery,
 } from '../generated/graphql';
 import CSpinner from '../shared/CSpinner';
 import { isSameDay, isYesterday } from '../utils/dateUtils';
@@ -19,12 +21,13 @@ function RoomMessages() {
     limit: 20,
     cursor: null,
   });
+  const { ScrollRefComponent } = useScrollCtx();
+
   const [{ data, fetching }] = useGetMessagesQuery({
     variables,
     pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
   });
-
-  const { ScrollRefComponent } = useScrollCtx();
+  const [{ data: meData }] = useMeQuery();
 
   useGetNewMessageSubscription({
     pause: typeof params.roomId === 'undefined' || params.roomId === '@me',
@@ -38,6 +41,33 @@ function RoomMessages() {
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.roomId]);
+
+  if (params.roomId.includes('@'))
+    return (
+      <Flex
+        h='full'
+        justify='center'
+        align='center'
+        direction='column'
+        gap='1rem'
+      >
+        <Text>
+          Hi there,{' '}
+          <chakra.span fontWeight='bold'>{meData?.me.fullName}</chakra.span>
+        </Text>
+        <Text>
+          Click on{' '}
+          <IconButton
+            icon={<FiEdit2 />}
+            aria-label='create room ref'
+            size='xs'
+            colorScheme='teal'
+            isRound
+          />{' '}
+          icon to create chat room
+        </Text>
+      </Flex>
+    );
 
   return (
     <Flex direction='column' flex='1' overflowY='hidden'>
