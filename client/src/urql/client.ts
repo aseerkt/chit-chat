@@ -6,8 +6,10 @@ import {
 } from 'urql';
 import { devtoolsExchange } from '@urql/devtools';
 import { createClient as createWSClient } from 'graphql-ws';
-import { API_URL, JWT_LOCAL_NAME } from '../constants';
 import urqlCache from './cache';
+
+const API_URL = `${import.meta.env.VITE_API_URL}/graphql`;
+export const JWT_LOCAL_NAME = 'dm-token';
 
 const wsClient = createWSClient({
   url: API_URL.replace('http', 'ws'),

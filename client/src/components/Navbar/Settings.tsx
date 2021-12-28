@@ -9,7 +9,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { FaCog } from 'react-icons/fa';
-import { JWT_LOCAL_NAME } from '../../constants';
+import { JWT_LOCAL_NAME } from '../../urql/client';
 import { useTogglePrivacyMutation, useMeQuery } from '../../generated/graphql';
 
 function Settings() {
