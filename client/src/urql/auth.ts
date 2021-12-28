@@ -1,6 +1,6 @@
 import { makeOperation } from '@urql/core';
 import { authExchange } from '@urql/exchange-auth';
-import { JWT_LOCAL_NAME } from '../constants';
+import { JWT_LOCAL_NAME } from './client';
 
 export default authExchange<{ token?: string } | null>({
   addAuthToOperation: ({ authState, operation }) => {
