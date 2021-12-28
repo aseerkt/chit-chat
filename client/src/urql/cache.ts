@@ -1,5 +1,4 @@
 import { Cache, cacheExchange, Variables } from '@urql/exchange-graphcache';
-import { JWT_LOCAL_NAME } from '../constants';
 import {
   GetNewMessageSubscription,
   GetMessagesQuery,
@@ -13,6 +12,7 @@ import {
   CreateRoomMutation,
   UserResponse,
 } from '../generated/graphql';
+import { JWT_LOCAL_NAME } from './client';
 import { customPagination } from './customPagination';
 
 function invalidateQueryField(cache: Cache, fieldName: string) {
