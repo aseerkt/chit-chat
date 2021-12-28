@@ -28,10 +28,10 @@ function Home() {
         justify='center'
         textAlign={{ base: 'center', sm: 'right' }}
       >
-        <Text color='teal' fontSize='5xl' mb='3' fontWeight='bolder'>
+        <Text color='teal' fontSize='5xl' fontWeight='bolder' lineHeight={1}>
           ChitChat
         </Text>
-        <Text color='gray' mb='2' fontSize='xl'>
+        <Text color='gray' mb='4' opacity={0.8} fontSize='xl'>
           Any easy way to chat among friends and groups
         </Text>
         <HStack spacing={3}>
