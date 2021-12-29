@@ -17,7 +17,7 @@ import MessageItem from './MessageItem';
 function RoomMessages() {
   const params = useParams<{ roomId: string }>();
   const [variables, setVariables] = useState<GetMessagesQueryVariables>({
-    roomId: parseInt(params.roomId),
+    roomId: parseInt(params!.roomId!),
     limit: 20,
     cursor: null,
   });
@@ -37,12 +37,12 @@ function RoomMessages() {
     setVariables((prev) => ({
       ...prev,
       cursor: null,
-      roomId: parseInt(params.roomId),
+      roomId: parseInt(params!.roomId!),
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.roomId]);
 
-  if (params.roomId.includes('@'))
+  if (params!.roomId!.includes('@'))
     return (
       <Flex
         h='full'
