@@ -3,10 +3,10 @@ import { Image } from '@chakra-ui/image';
 import { Flex, Grid, HStack, Text } from '@chakra-ui/layout';
 import { FaGithubAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import usePublicRedirect from '../hooks/usePublicRedirect';
+import useRedirect from '../hooks/useRedirect';
 
 function Home() {
-  usePublicRedirect();
+  useRedirect('guest');
 
   return (
     <Grid

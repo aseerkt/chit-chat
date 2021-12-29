@@ -1,6 +1,6 @@
 import { Flex, Button, Avatar, IconButton } from '@chakra-ui/react';
 import { FaPlusCircle } from 'react-icons/fa';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
   AllUsersQueryVariables,
@@ -14,7 +14,7 @@ import CreateRoomLoader from './CreateRoomLoader';
 import { CreateRoomProps } from './CreateRoomModal';
 
 function CreateDM({ onClose }: CreateRoomProps) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [variables, setVariables] = useState<AllUsersQueryVariables>({
     limit: 5,
   });
@@ -27,7 +27,7 @@ function CreateDM({ onClose }: CreateRoomProps) {
 
   useEffect(() => {
     if (createRoomResponse?.createRoom.room) {
-      history.push(`/room/${createRoomResponse.createRoom.room.id}`);
+      navigate(`/room/${createRoomResponse.createRoom.room.id}`);
       onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

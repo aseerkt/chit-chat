@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Room, useGetMyRoomsQuery } from '../generated/graphql';
 import CSpinner from '../shared/CSpinner';
 
@@ -12,7 +12,7 @@ const RoomCtx = createContext<RoomCtxType>(null as any);
 
 function CurrentRoomProvider({ children }: { children: React.ReactNode }) {
   const params: any = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [{ fetching, data }] = useGetMyRoomsQuery();
 
   const [room, setRoom] = useState<Room | undefined>();
@@ -23,7 +23,7 @@ function CurrentRoomProvider({ children }: { children: React.ReactNode }) {
     );
     if (!currentRoom) {
       const firstRoomId = data?.getMyRooms[0]?.id;
-      history.replace(`/room/${firstRoomId || '@me'}`);
+      navigate(`/room/${firstRoomId || '@me'}`, { replace: true });
     } else setRoom(currentRoom as Room);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.roomId, data]);

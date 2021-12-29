@@ -12,7 +12,7 @@ import {
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useRegisterMutation } from '../generated/graphql';
-import usePublicRedirect from '../hooks/usePublicRedirect';
+import useRedirect from '../hooks/useRedirect';
 
 function Register() {
   const toast = useToast();
@@ -23,7 +23,7 @@ function Register() {
     password: '',
   });
 
-  usePublicRedirect(true);
+  useRedirect('guest', true);
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));

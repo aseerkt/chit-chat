@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   RoomType,
   useAllUsersQuery,
@@ -29,7 +29,7 @@ import CreateRoomLoader from './CreateRoomLoader';
 import { CreateRoomProps } from './CreateRoomModal';
 
 function CreateGroup({ onClose }: CreateRoomProps) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [{ data: meData }] = useMeQuery();
   const [memberList, setMemberList] = useState([meData?.me!]);
@@ -42,7 +42,7 @@ function CreateGroup({ onClose }: CreateRoomProps) {
   useEffect(() => {
     if (data?.createRoom.room) {
       const { room } = data.createRoom;
-      history.push(`/room/${room?.id}`);
+      navigate(`/room/${room?.id}`);
       onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
