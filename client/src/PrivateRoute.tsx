@@ -1,8 +1,9 @@
 import { Box } from '@chakra-ui/react';
 import useRedirect from './hooks/useRedirect';
 import Navbar from './components/Navbar/Navbar';
+import { PropsWithChildren } from 'react';
 
-const PrivateRoute: React.FC = ({ children }) => {
+const PrivateRoute: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   useRedirect('private');
 
   return (

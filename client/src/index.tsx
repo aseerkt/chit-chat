@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'urql';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
@@ -6,14 +6,15 @@ import App from './App';
 import theme from './theme';
 import client from './urql/client';
 
-ReactDOM.render(
+const appRoot = createRoot(document.getElementById('root')!);
+
+appRoot.render(
   <ChakraProvider theme={theme}>
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
     <Provider value={client}>
       <App />
     </Provider>
-  </ChakraProvider>,
-  document.getElementById('root')
+  </ChakraProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

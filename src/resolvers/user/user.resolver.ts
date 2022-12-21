@@ -8,7 +8,7 @@ import {
   Resolver,
   UseMiddleware,
 } from 'type-graphql';
-import { getRepository, Not } from 'typeorm';
+import { Not } from 'typeorm';
 import { Notification } from '../../entities/Notification';
 import { User } from '../../entities/User';
 import { protect } from '../../middlewares/permissions';
@@ -20,6 +20,7 @@ import {
   UserResponse,
 } from './user.types';
 import { setToken } from '../../utils/jwtHelper';
+import { AppDataSource } from '../../data-source';
 
 @Resolver(User)
 export class UserResolver {
@@ -42,7 +43,7 @@ export class UserResolver {
     @Ctx() { res }: MyContext
   ): Promise<PaginatedUsers> {
     const users = await User.find({
-      where: { id: Not(res.locals.userId) },
+      where: { id: Not(res.locals.userId!) },
       take: limit + 1,
       skip: offset || 0,
     });
@@ -59,7 +60,7 @@ export class UserResolver {
     @Arg('term') term: string
   ): Promise<User[]> | null {
     if (!term) return null;
-    return getRepository(User)
+    return AppDataSource.getRepository(User)
       .createQueryBuilder('u')
       .where('u.id != :uid', { uid: res.locals.userId })
       .andWhere("u.username LIKE '%' || :term || '%'", { term })

@@ -1,4 +1,3 @@
-import { AuthenticationError } from 'apollo-server-express';
 import { MiddlewareFn } from 'type-graphql/dist/interfaces/Middleware';
 import { MemberRole } from '../entities/Member';
 import { MyContext } from '../types/global.types';
@@ -14,14 +13,14 @@ export const protect: ProtectMiddleware =
     try {
       const token = context.req.headers.authorization?.split('Bearer ')[1];
       if (!token) {
-        throw new AuthenticationError('Not Authenticated');
+        throw new Error('Not Authenticated');
       }
       const payload: any = getPayload(token);
       context.res.locals.userId = payload.userId;
     } catch (err) {
       console.log(err.message);
       if (strict) {
-        throw new AuthenticationError('Not Authenticated');
+        throw new Error('Not Authenticated');
       }
     }
     return next();

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { Field, ObjectType } from 'type-graphql';
-import memberLoader from '../dataloaders/memberLoader';
-import messageLoader from '../dataloaders/messageLoader';
-import userLoader from '../dataloaders/userLoader';
+import memberLoader from '../dataloaders/member.loader';
+import messageLoader from '../dataloaders/message.loader';
+import userLoader from '../dataloaders/user.loader';
 
 @ObjectType()
 export class FieldError {

@@ -1,11 +1,11 @@
 // [{u1,u2}, ....] => [[m12,m12, ...], ...]
 
 import DataLoader from 'dataloader';
-import { getRepository } from 'typeorm';
+import { AppDataSource } from '../data-source';
 import { Message } from '../entities/Message';
 
 async function batchMessages(roomIds: readonly number[]) {
-  const messages = await getRepository(Message)
+  const messages = await AppDataSource.getRepository(Message)
     .createQueryBuilder('m')
     .where('m."roomId" IN (:...roomIds)', { roomIds })
     .getMany();

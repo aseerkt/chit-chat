@@ -1,11 +1,11 @@
 // [{u1,u2}, ....] => [[m12,m12, ...], ...]
 
 import DataLoader from 'dataloader';
-import { getRepository } from 'typeorm';
+import { AppDataSource } from '../data-source';
 import { User } from '../entities/User';
 
 async function batchUsers(ids: readonly number[]) {
-  const users = await getRepository(User)
+  const users = await AppDataSource.getRepository(User)
     .createQueryBuilder('u')
     .where('u.id IN (:...ids)', { ids })
     .getMany();

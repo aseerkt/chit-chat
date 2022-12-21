@@ -1,4 +1,5 @@
-import { ConnectionOptions } from 'typeorm';
+import { DataSourceOptions } from 'typeorm';
+import 'dotenv/config';
 import { __prod__ } from './constants';
 
 export default {
@@ -19,4 +20,4 @@ export default {
         rejectUnauthorized: false,
       }
     : false,
-} as ConnectionOptions;
+} as DataSourceOptions;

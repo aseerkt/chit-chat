@@ -1,3 +1,4 @@
+import { AppDataSource } from '../../data-source';
 import {
   Field,
   Resolver,
@@ -11,7 +12,6 @@ import {
   Arg,
   Int,
 } from 'type-graphql';
-import { getConnection, getRepository } from 'typeorm';
 import { Invite } from '../../entities/Invite';
 import { Member, MemberRole } from '../../entities/Member';
 import { Room, RoomType } from '../../entities/Room';
@@ -62,7 +62,7 @@ export class RoomResolver {
   @Query(() => [Room])
   @UseMiddleware(protect({ strict: true }))
   async getMyRooms(@Ctx() { res }: MyContext) {
-    const results = await getRepository(Room)
+    const results = await AppDataSource.getRepository(Room)
       .createQueryBuilder('r')
       .leftJoin('members', 'm', 'm."roomId" = r.id')
       .leftJoin('messages', 'msg', 'msg."roomId" = r.id')
@@ -103,7 +103,7 @@ export class RoomResolver {
       };
 
     if (type === RoomType.DM) {
-      const results: Room[] = await getConnection().query(
+      const results: Room[] = await AppDataSource.query(
         /*sql*/ `
         SELECT
             DISTINCT ON (r.id)
@@ -120,7 +120,6 @@ export class RoomResolver {
       );
       // console.log(results);
 
-
       if (results.length !== 0) {
         return { room: results[0] };
       }
@@ -130,14 +129,13 @@ export class RoomResolver {
       members.map((m) => userLoader.load(m))
     );
 
-    return getConnection().transaction(async (tem) => {
+    return AppDataSource.transaction(async (tem) => {
       const newRoom = tem.create(Room, {
         name: type === RoomType.DM ? undefined : name,
         type,
       });
       await tem.save(newRoom);
       // console.log(newRoom);
-
 
       const memberValues = tem.create(
         Member,
@@ -161,7 +159,7 @@ export class RoomResolver {
         (u) => u.private && u.id !== res.locals.userId
       );
       if (privateUsers.length > 0) {
-        const inviteEntities = tem.create(
+        const inviteEntities = tem.create<Invite>(
           Invite,
           privateUsers.map((u) => ({
             inviteeId: u.id,
